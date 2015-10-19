@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceBroadcast.Web", "ConferenceBroadcast.Web\ConferenceBroadcast.Web.csproj", "{09769921-0E0E-4ED2-827B-75AB3BF73BCF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConferenceBroadcast.Web.Test", "ConferenceBroadcast.Web.Test\ConferenceBroadcast.Web.Test.csproj", "{B7EB2A8B-A6D4-4788-98B4-BE31A3A2BA1B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{09769921-0E0E-4ED2-827B-75AB3BF73BCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{09769921-0E0E-4ED2-827B-75AB3BF73BCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{09769921-0E0E-4ED2-827B-75AB3BF73BCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7EB2A8B-A6D4-4788-98B4-BE31A3A2BA1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7EB2A8B-A6D4-4788-98B4-BE31A3A2BA1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7EB2A8B-A6D4-4788-98B4-BE31A3A2BA1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7EB2A8B-A6D4-4788-98B4-BE31A3A2BA1B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
