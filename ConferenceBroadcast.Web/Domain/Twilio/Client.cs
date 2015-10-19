@@ -1,31 +1,42 @@
-﻿using Twilio;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Twilio;
 
 namespace ConferenceBroadcast.Web.Domain.Twilio
 {
     public interface IClient
     {
         void Call(CallOptions options);
+        IEnumerable<Recording> Recordings();
+
     }
 
     public class Client : IClient
     {
-        private readonly ICredentials _credentials;
+        private readonly TwilioRestClient _client;
 
         public Client()
         {
-            _credentials = new Credentials();
+            ICredentials credentials = new Credentials();
+            _client = new TwilioRestClient(credentials.AccountSID, credentials.AuthToken);
         }
 
         public Client(ICredentials credentials)
         {
-            _credentials = credentials;
+            _client = new TwilioRestClient(credentials.AccountSID, credentials.AuthToken);
         }
 
         public void Call(CallOptions options)
         {
-            var client = new TwilioRestClient(
-                _credentials.AccountSID, _credentials.AuthToken);
-            client.InitiateOutboundCall(options);
+            var call = _client.InitiateOutboundCall(options);
+
+            Console.WriteLine(call.Status);
+        }
+
+        public IEnumerable<Recording> Recordings()
+        {
+            return _client.ListRecordings().Recordings;
         }
     }
 }

@@ -28,7 +28,8 @@ namespace ConferenceBroadcast.Web.Controllers
             return View();
         }
 
-        // GET: Broadcast/Record
+        // POST: Broadcast/Record
+        [HttpPost]
         public ActionResult Record()
         {
             var response = new TwilioResponse();
