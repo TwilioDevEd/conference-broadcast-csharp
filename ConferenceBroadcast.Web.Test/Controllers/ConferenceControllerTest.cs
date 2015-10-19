@@ -50,7 +50,7 @@ namespace ConferenceBroadcast.Web.Test.Controllers
                 Is.EqualTo(expectedMute));
             Assert.That(conferenceAttributes["startConferenceOnEnter"].Value,
                 Is.EqualTo(expectedStartConferenceOnEnter));
-            Assert.That(conferenceAttributes["endConferenceOnEnter"].Value,
+            Assert.That(conferenceAttributes["endConferenceOnExit"].Value,
                 Is.EqualTo(expectedEndConferenceOnEnter));
         }
     }

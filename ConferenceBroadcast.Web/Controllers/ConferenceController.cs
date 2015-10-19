@@ -41,7 +41,7 @@ namespace ConferenceBroadcast.Web.Controllers
                     waitUrl = "http://twimlets.com/holdmusic?Bucket=com.twilio.music.ambient",
                     muted = isMuted,
                     startConferenceOnEnter = canControlConferenceOnEnter,
-                    endConferenceOnEnter = canControlConferenceOnEnter
+                    endConferenceOnExit = canControlConferenceOnEnter
                 });
 
             return TwiML(response);
