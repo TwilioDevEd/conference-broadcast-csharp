@@ -1,4 +1,5 @@
 ﻿using System.Web.Mvc;
+using ConferenceBroadcast.Web.Domain.Twilio.Configuration;
 using Twilio.TwiML;
 using Twilio.TwiML.Mvc;
 
@@ -6,14 +7,23 @@ namespace ConferenceBroadcast.Web.Controllers
 {
     public class ConferenceController : TwilioController
     {
+        private readonly IPhoneNumbers _phoneNumbers;
+
+        public ConferenceController() : this(new PhoneNumbers()) {}
+
+        public ConferenceController(IPhoneNumbers phoneNumbers)
+        {
+            _phoneNumbers = phoneNumbers;
+        }
         // GET: Conference
         public ActionResult Index()
         {
-            // TODO: Get rapid response conference number.
+            ViewBag.RapidResponseNumber = _phoneNumbers.RapidResponse;
             return View();
         }
 
-        // GET: Conference/Join
+        // POST: Conference/Join
+        [HttpPost]
         public ActionResult Join()
         {
             var response = new TwilioResponse();
@@ -27,7 +37,8 @@ namespace ConferenceBroadcast.Web.Controllers
             return TwiML(response);
         }
 
-        // GET: Conference/Connect
+        // POST: Conference/Connect
+        [HttpPost]
         public ActionResult Connect(string digits)
         {
             var isMuted = digits.Equals("1"); // Listener
