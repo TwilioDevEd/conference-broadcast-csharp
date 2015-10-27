@@ -1,5 +1,6 @@
 ﻿using ConferenceBroadcast.Web.Controllers;
 using ConferenceBroadcast.Web.Domain.Twilio;
+using ConferenceBroadcast.Web.Domain.Twilio.Configuration;
 using Moq;
 using NUnit.Framework;
 using TestStack.FluentMVCTesting;

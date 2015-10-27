@@ -1,6 +1,6 @@
 ﻿using System.Web.Configuration;
 
-namespace ConferenceBroadcast.Web.Domain.Twilio
+namespace ConferenceBroadcast.Web.Domain.Twilio.Configuration
 {
     public interface IPhoneNumbers
     {

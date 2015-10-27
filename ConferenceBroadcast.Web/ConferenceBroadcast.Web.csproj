@@ -128,8 +128,9 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\RecordingsController.cs" />
     <Compile Include="Domain\Twilio\Client.cs" />
-    <Compile Include="Domain\Twilio\Credentials.cs" />
-    <Compile Include="Domain\Twilio\PhoneNumbers.cs" />
+    <Compile Include="Domain\Twilio\Configuration\Credentials.cs" />
+    <Compile Include="Domain\Twilio\Configuration\CustomRequest.cs" />
+    <Compile Include="Domain\Twilio\Configuration\PhoneNumbers.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
