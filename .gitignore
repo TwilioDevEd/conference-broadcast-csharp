@@ -206,4 +206,5 @@ FakesAssemblies/
 *.opt
 
 # Project
-ConferenceBroadcast.Web/Web.config
+# This file contains the sensitive data of our project
+ConferenceBroadcast.Web/Local.config

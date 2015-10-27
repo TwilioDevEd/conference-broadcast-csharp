@@ -39,7 +39,7 @@ namespace ConferenceBroadcast.Web.Controllers
             {
                 From = _phoneNumbers.Twilio,
                 To = phoneNumber,
-                Url = Url.Action("Record", "Broadcast", null, Request.Url.Scheme)
+                Url = Url.Action("Record", "Broadcast")
             });
 
             return new EmptyResult();
