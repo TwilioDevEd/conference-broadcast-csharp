@@ -29,18 +29,6 @@ namespace ConferenceBroadcast.Web.Controllers
             return View();
         }
 
-        // POST: Broadcast/Record
-        [HttpPost]
-        public ActionResult Record()
-        {
-            var response = new TwilioResponse();
-            response.Say(
-                "Please record your message after the beep. Press star to end your recording");
-            response.Record(new {finishOnKey = "*"});
-
-            return TwiML(response);
-        }
-
         // GET: Broadcast/Send
         public ActionResult Send(string numbers, string recordingUrl)
         {

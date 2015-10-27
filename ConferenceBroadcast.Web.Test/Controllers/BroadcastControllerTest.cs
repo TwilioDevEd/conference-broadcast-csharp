@@ -20,19 +20,6 @@ namespace ConferenceBroadcast.Web.Test.Controllers
                 .ShouldRenderDefaultView();
         }
         [Test]
-        public void GivenARecordAction_ThenTheResponseContainsRecord()
-        {
-            var controller = new BroadcastController();
-            var result = controller.Record();
-
-            result.ExecuteResult(MockControllerContext.Object);
-            var document = BuildDocument();
-
-            Assert.That(document.SelectSingleNode("Response/Record").Attributes["finishOnKey"].Value,
-                Is.EqualTo("*"));
-        }
-
-        [Test]
         public void GivenASendAction_When2PhoneNumbersAreProvided_ThenCallIsCalledTwice()
         {
             var mockClient = new Mock<IClient>();

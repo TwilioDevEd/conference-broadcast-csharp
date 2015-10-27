@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web.Helpers;
-using System.Web.Mvc;
 using ConferenceBroadcast.Web.Controllers;
 using ConferenceBroadcast.Web.Domain.Twilio;
 using ConferenceBroadcast.Web.Domain.Twilio.Configuration;
 using Moq;
 using NUnit.Framework;
 using Twilio;
+
+// ReSharper disable PossibleNullReferenceException
 
 namespace ConferenceBroadcast.Web.Test.Controllers
 {
@@ -55,5 +56,29 @@ namespace ConferenceBroadcast.Web.Test.Controllers
             mockClient.Verify(c => c.Call(It.IsAny<CallOptions>()), Times.Once);
         }
 
+        [Test]
+        public void GivenARecordAction_ThenTheResponseContainsRecord()
+        {
+            var controller = new RecordingsController {Url = Url};
+            var result = controller.Record();
+
+            result.ExecuteResult(MockControllerContext.Object);
+            var document = BuildDocument();
+
+            Assert.That(document.SelectSingleNode("Response/Record").Attributes["finishOnKey"].Value,
+                Is.EqualTo("*"));
+        }
+
+        [Test]
+        public void GivenAHangupAction_ThenTheResponseContainsHangup()
+        {
+            var controller = new RecordingsController();
+            var result = controller.Hangup();
+
+            result.ExecuteResult(MockControllerContext.Object);
+            var document = BuildDocument();
+
+            Assert.That(document.SelectSingleNode("Response/Hangup"), Is.Not.Null);
+        }
     }
 }
