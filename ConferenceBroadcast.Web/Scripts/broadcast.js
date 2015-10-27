@@ -74,7 +74,7 @@ $(function () {
         return $(".make-recording").toggleClass("slide-down");
     });
 
-    $("#selectRecordings").on("change", "click", function (e) {
+    $("#selectRecordings").on("change", function (e) {
         return getRecordings(updateAudio);
     });
 
