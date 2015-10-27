@@ -24,7 +24,5 @@ namespace ConferenceBroadcast.Web.Domain.Twilio.Configuration
                 return WebConfigurationManager.AppSettings["TwilioAuthToken"];
             }
         }
-
-
     }
 }

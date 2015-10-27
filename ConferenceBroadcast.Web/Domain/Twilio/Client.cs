@@ -30,9 +30,7 @@ namespace ConferenceBroadcast.Web.Domain.Twilio
 
         public void Call(CallOptions options)
         {
-            var call = _client.InitiateOutboundCall(options);
-
-            Console.WriteLine(call.Status);
+            _client.InitiateOutboundCall(options);
         }
 
         public IEnumerable<Recording> Recordings()

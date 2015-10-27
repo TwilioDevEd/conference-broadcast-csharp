@@ -19,6 +19,7 @@ namespace ConferenceBroadcast.Web.Test.Controllers
             controller.WithCallTo(c => c.Index())
                 .ShouldRenderDefaultView();
         }
+
         [Test]
         public void GivenASendAction_When2PhoneNumbersAreProvided_ThenCallIsCalledTwice()
         {
