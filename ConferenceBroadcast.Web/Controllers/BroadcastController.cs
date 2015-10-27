@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using System.Web.Routing;
 using ConferenceBroadcast.Web.Domain.Twilio;
 using ConferenceBroadcast.Web.Domain.Twilio.Configuration;
 using Twilio;
@@ -15,12 +16,20 @@ namespace ConferenceBroadcast.Web.Controllers
     {
         private readonly IClient _client;
         private readonly IPhoneNumbers _phoneNumbers;
+        private ICustomRequest _customRequest;
         public BroadcastController() : this(new Client(), new PhoneNumbers()) {}
 
-        public BroadcastController(IClient client, IPhoneNumbers phoneNumbers)
+        public BroadcastController(IClient client, IPhoneNumbers phoneNumbers, ICustomRequest customRequest = null)
         {
             _client = client;
             _phoneNumbers = phoneNumbers;
+            _customRequest = customRequest;
+        }
+
+        protected override void Initialize(RequestContext requestContext)
+        {
+            base.Initialize(requestContext);
+            _customRequest = new CustomRequest(requestContext.HttpContext.Request);
         }
 
         // GET: Broadcast
@@ -32,18 +41,20 @@ namespace ConferenceBroadcast.Web.Controllers
         // GET: Broadcast/Send
         public ActionResult Send(string numbers, string recordingUrl)
         {
+            var url = string.Format("{0}{1}", _customRequest.Url, Url.Action("Play", new {recordingUrl}));
             VolunteersNumbers(numbers).ForEach(number =>
                 _client.Call(new CallOptions
                 {
                     From = _phoneNumbers.Twilio,
                     To = number,
-                    Url = Url.Action("Play", new {recordingUrl})
+                    Url = string.Format("{0}{1}", _customRequest.Url, Url.Action("Play", new {recordingUrl}))
                 }));
 
-            return new EmptyResult();
+            return View();
         }
 
-        // GET: Broadcast/Play
+        // POST: Broadcast/Play
+        [HttpPost]
         public ActionResult Play(string recordingUrl)
         {
             var response = new TwilioResponse();

@@ -26,11 +26,12 @@ namespace ConferenceBroadcast.Web.Test.Controllers
             mockClient.Setup(c => c.Call(It.IsAny<CallOptions>()));
             var mockPhoneNumbers = new Mock<IPhoneNumbers>();
             mockPhoneNumbers.Setup(p => p.Twilio).Returns("twilio-number");
+            var mockCustomRequest = new Mock<ICustomRequest>();
+            mockCustomRequest.Setup(r => r.Url).Returns("http://example.com");
 
-            var controller = new BroadcastController(mockClient.Object, mockPhoneNumbers.Object) {Url = Url};
-            var result = controller.Send("phone-one, phone-two", "recording-url");
-
-            result.ExecuteResult(MockControllerContext.Object);
+            var controller = new BroadcastController(
+                mockClient.Object, mockPhoneNumbers.Object, mockCustomRequest.Object) {Url = Url};
+            controller.Send("phone-one, phone-two", "recording-url");
 
             mockClient.Verify(c => c.Call(It.IsAny<CallOptions>()), Times.Exactly(2));
         }

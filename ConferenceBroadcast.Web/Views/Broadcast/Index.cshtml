@@ -1,5 +1,5 @@
 ﻿<h1>Broadcast a message</h1>
-@using (Html.BeginForm("Send", "Broadcast", new { @class = "form-horizontal" }))
+@using (Html.BeginForm("Send", "Broadcast", FormMethod.Post, new { @class = "form-horizontal" }))
 {
     <h3>1. Select a Recording</h3>
     <div class="recording-group">
@@ -14,7 +14,7 @@
                 <i class="fa fa-play-circle fa-2x"></i> Preview
                 <audio id="recording-audio" src="" preload="auto"></audio>
             </a>
-            <input type="textfield" class="hidden" id="recording-url" name="recordingUlr">
+            <input type="textfield" class="hidden" id="recording-url" name="recordingUrl">
         </div>
         <a href="#" class="show-make"><i class="fa fa-angle-down"></i> Make a new Recording</a>
         <div class="form-group make-recording">
