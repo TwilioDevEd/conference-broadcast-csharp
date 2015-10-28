@@ -1,0 +1,203 @@
+<!DOCTYPE html><html><head><title>Voice Conference and Broadcast</title><style>body, html {
+  height:100%;
+  width:100%;
+  padding:0;
+  margin:0;
+  overflow:hidden;
+  background-color:#ddd;
+}
+.wrapper {
+  height:100%;
+  width:100%;
+}</style><link rel="shortcut icon" href="//twilio.com/bundles/marketing/img/favicons/favicon.ico"><link rel="apple-touch-icon" href="//twilio.com/bundles/marketing/img/favicons/favicon_57.png"><link rel="apple-touch-icon" sizes="72x72" href="//twilio.com/bundles/marketing/img/favicons/favicon_72.png"><link rel="apple-touch-icon" sizes="114x114" href="//twilio.com/bundles/marketing/img/favicons/favicon_114.png"><link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css"><link rel="stylesheet" href="viewsaurus.css"></head><body><div class="wrapper"><div id="viewsaurus" data-title="Voice Conference and Broadcast"><div class="saurus-panes"><div class="saurus-prose"><div class="saurus-prose-header"><div class="title-outer"><span class="step-title">Voice Conference and Broadcast</span></div></div><div class="saurus-nav-buttons"><div class="saurus-nav-button nav-overview"><div class="saurus-nav-button-inner"><i class="fa fa-fw fa-list"></i></div><div class="nav-divider"></div></div><div class="saurus-nav-button nav-previous"><div class="saurus-nav-button-inner"><a href=""> <i class="fa fa-fw fa-play fa-rotate-180"></i></a></div><div class="nav-divider"></div></div><div class="saurus-nav-button nav-next clickable"><div class="saurus-nav-button-inner"><a href="#1"> <i class="fa fa-fw fa-play"></i></a></div></div><div class="saurus-next-title"><span class="next-title-inner"></span></div></div><div class="saurus-progress-bar"></div><div class="saurus-start"><p>Learn how to use Twilio's conference features and REST API to build a conference line with advanced controls. Additionally learn how to build a voice broadcast system as part of this Rapid Response application.</p><a href="#0">Start Tutorial</a></div><div class="saurus-content"><div data-title="Voice Conference and Broadcast" class="chapter"><div data-file="ConferenceBroadcast.Web/packages.config" data-mode="xml" class="step"><h2 id="about-this-application">About this application</h2>
+<p><img src="http://howtodocs.s3.amazonaws.com/RRK-
+screenshot.png" alt="Rapid Response Kit"></p>
+<p>This <a href="//www.asp.net/mvc">ASP.NET MVC</a> sample application is inspired by
+the <a href="//github.com/Twilio-org/rapid-response-kit">Rapid Response Kit</a>,
+built by Twilio and <a href="//www.twilio.com/blog/2014/03/open-source-nonprofit-tools-twilio-org-rapid-response-kit-nt.html">used all over the
+world</a>
+by organizations who need to act quickly in disastrous situations.</p>
+<p>Aid workers can use the tools in this app to communicate immediately
+with a large group of volunteers. In situations where all parties need
+to talk at once the organizer can quickly spin up a conference line. In
+other situations she can broadcast a spoken message to a list of
+volunteer phone numbers.</p>
+<p>To run this sample app yourself, <a href="https://github.com/TwilioDevEd/conference-
+broadcast-csharp">download the code and follow the
+instructions on GitHub</a>. You might also want to click around the views for
+this app, since in this tutorial we will only be covering the Twilio
+pieces.</p>
+<p>Let&#39;s get started! Click the right arrow above to move to the next step
+of the tutorial.</p>
+<hr>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a href="//www.asp.net/mvc/overview/getting-started/introduction/getting-started">Getting Started with ASP.NET MVC 5</a></li>
+<li><a href="//www.twilio.com/docs/csharp/install">The Twilio C# Helper Library</a></li>
+</ul>
+</div><div data-file="ConferenceBroadcast.Web/packages.config" class="step"><h2 id="create-a-conference-number">Create a Conference Number</h2>
+<p>Before we can call our conference line we need to configure one of our
+Twilio numbers to send our web application an HTTP request when we get
+an incoming call.</p>
+<p><a href="/user/account/phone-numbers/incoming">Click on one of your numbers</a> and
+configure the Voice URL to point to our app. In our code the route will
+be <code>/Conference/Join</code>.</p>
+<p><img src="//s3.amazonaws.com/howtodocs/number-
+config.png" alt="Configuring a Twilio Number"></p>
+<hr>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a href="/help/faq/voice/how-do-i-assign-my-twilio-number-to-my-voice-application">Configuring Twilio Numbers for Voice</a></li>
+<li><a href="//www.twilio.com/blog/2013/10/test-your-webhooks-locally-with-ngrok.html">Using ngrok to test your Twilio webhooks locally</a></li>
+<li><a href="//www.asp.net/mvc/overview/older-versions-1/controllers-and-routing/asp-net-mvc-routing-overview-cs">ASP.NET MVC Routing overview</a></li>
+</ul>
+</div><div data-file="ConferenceBroadcast.Web/Controllers/ConferenceController.cs" data-highlight="49-57" class="step"><h2 id="create-a-simple-conference-call">Create a Simple Conference Call</h2>
+<p>Our Twilio number is now configured to <a href="//www.twilio.com/docs/api/twiml/twilio_request">send HTTP
+requests</a> to this
+controller method on any incoming voice calls. Our app responds with
+<a href="//www.twilio.com/docs/api/twiml">TwiML</a> to tell Twilio how to
+handle the call.</p>
+<p>We use the Twilio Ruby library to generate some TwiML that tells
+Twilio to <a href="//www.twilio.com/docs/api/twiml/dial"><code>Dial</code></a> into a
+<a href="//www.twilio.com/docs/api/twiml/conference">Conference</a> that
+we&#39;re naming <code>&quot;RapidResponseRoom&quot;</code>. This means that anyone who calls
+your Twilio number will automatically join this conference.</p>
+<p>Next we&#39;ll turn this into a moderated conference line, with a moderator
+and listeners.</p>
+<hr>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a href="//www.twilio.com/blog/2012/02/twilio-for-net-developers-part-4-using-the-twilio-twiml-helper-library.html">Using the Twilio.TwiML Helper Library</a></li>
+<li><a href="//www.twilio.com/docs/api/twiml/conference#attributes-waitUrl">Conference waitUrl parameter</a></li>
+</ul>
+</div><div data-file="ConferenceBroadcast.Web/Controllers/ConferenceController.cs" data-highlight="26-39" class="step"><h2 id="create-a-moderated-conference">Create a Moderated Conference</h2>
+<p>In this scenario we ask for the caller&#39;s role before we connect them to
+the conference. These roles are:</p>
+<ul>
+<li><strong>Moderator</strong>: can start and end the conference</li>
+<li><strong>Speaker</strong>: can speak on the conference call</li>
+<li><strong>Listener</strong>: is muted and can only listen to the call</li>
+</ul>
+<p>In this controller we <a href="//www.twilio.com/docs/api/twiml/say"><code>Say</code></a>
+a simple message and then ask the caller to choose a role. Next we tell
+Twilio to <a href="//www.twilio.com/docs/api/twiml/gather"><code>Gather</code></a> a
+button press from the caller&#39;s phone so we know which role they want to
+use.</p>
+<hr>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a href="//www.twilio.com/blog/2012/02/twilio-for-net-developers-part-4-using-the-twilio-twiml-helper-library.html">Using the Twilio.TwiML Helper Library</a></li>
+</ul>
+</div><div data-file="ConferenceBroadcast.Web/Controllers/ConferenceController.cs" data-highlight="41-60" class="step"><h2 id="connect-to-a-moderated-conference">Connect to a Moderated Conference</h2>
+<p>The <code>&lt;Gather&gt;</code> verb from the previous step included an
+<a href="//www.twilio.com/docs/api/twiml/gather#attributes-action"><code>action</code></a>
+parameter that took an absolute or relative URL as a value — in our case,
+the <code>Conference/Connect</code> route.</p>
+<p>When the caller finishes entering digits Twilio makes a GET or POST
+request to this URL including a
+<a href="//www.twilio.com/docs/api/twiml/gather#attributes-
+action-parameters"><code>Digits</code></a> parameter with the number our caller chose.</p>
+<p>We use that parameter to set a couple variables, <code>isMuted</code> and
+<code>canControlConferenceOnEnter</code>, which we then use to configure our
+<a href="//www.twilio.com/docs/api/twiml/dial"><code>Dial</code></a> and
+<a href="//www.twilio.com/docs/api/twiml/conference"><code>Conference</code></a> TwiML
+elements.</p>
+<hr>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a href="//www.twilio.com/docs/api/twiml/conference#attributes-muted">Conference: muted</a></li>
+<li><a href="//www.twilio.com/docs/api/twiml/conference#attributes-startConferenceOnEnter">Conference: startConferenceOnEnter</a></li>
+<li><a href="//www.twilio.com/docs/api/twiml/conference#attributes-endConferenceOnExit">Conference: endConferenceOnExit</a></li>
+</ul>
+</div><div data-file="ConferenceBroadcast.Web/Controllers/RecordingsController.cs" class="step"><h2 id="voice-broadcast">Voice Broadcast</h2>
+<p><img src="http://howtodocs.s3.amazonaws.com/RRK-
+broadcast.png" alt="Rapid Response Kit"></p>
+<p>In addition to hosting conference calls, an organizer can use our
+application to broadcast a voice message to a list of
+phone numbers. She can do this by choosing a recording from a dropdown,
+entering a list of phone numbers and clicking &#39;Submit&#39;.</p>
+<p>To power this feature, we&#39;ll use Twilio&#39;s REST API to fetch all of the
+recordings associated with our account. If our organizer wants to record
+a new message, we&#39;ll call her phone and record her response.</p>
+<p>Let&#39;s take a look at the code.</p>
+<hr>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a href="//github.com/twilio/twilio-csharp/wiki/Twilio.Api">Twilio REST API Wrapper</a></li>
+</ul>
+</div><div data-file="ConferenceBroadcast.Web/Controllers/RecordingsController.cs" data-highlight="34-45" class="step"><h2 id="fetch-recordings">Fetch Recordings</h2>
+<p>This route fetches all of the
+<a href="//www.twilio.com/docs/api/rest/recording#list-get-
+example-1"><code>recordings</code></a> associated with our Twilio account. We could filter these
+results by date or call sid using Twilio&#39;s API, but for this example
+we just pull all recordings.</p>
+<p>In order to use Twilio&#39;s handy API we need to first create our Twilio
+client, which we can easily do by passing our credentials.</p>
+<p>Once we get all of the recordings we need to render a JSON response of
+our recordings object. This route will be called by our Javascript on
+page load.</p>
+<p>As a side note, keep in mind that <code>_client.Recordings()</code> is just a thin
+wrapper for <code>client.ListRecordings().Recordings</code> where client is an
+instance of <code>TwilioRestClient</code>.</p>
+<hr>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a href="//www.twilio.com/docs/api/rest/recording">Twilio REST API: Recordings</a></li>
+<li><a href="//www.twilio.com/docs/api/rest/recording#list-get-
+example-4">Twilio REST API: Filter Recordings Results</a></li>
+</ul>
+</div><div data-file="ConferenceBroadcast.Web/Controllers/RecordingsController.cs" data-highlight="64-90" class="step"><h2 id="recording-a-new-message">Recording a new Message</h2>
+<p>If the organizer needs to make a new recording, we simply call her
+and record the call. Twilio makes this simple with the
+<a href="//www.twilio.com/docs/api/twiml/record"><code>Record</code></a> verb.</p>
+<p>Here we <code>Say</code> something to the caller and then <code>Record</code> her message.
+There are many more options we can pass to Record, but here we simply
+tell it to stop recording when &#39;*&#39; is pressed.</p>
+<hr>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a href="//www.twilio.com/docs/api/twiml/record#attributes">Recording: Optional Attributes</a></li>
+<li><a href="//github.com/twilio/twilio-csharp/wiki/Twilio.Mvc">Twilio Helpers for ASP.NET MVC</a></li>
+</ul>
+</div><div data-file="ConferenceBroadcast.Web/Controllers/BroadcastController.cs" data-highlight="41-64" class="step"><h2 id="broadcast-a-recorded-message">Broadcast a Recorded Message</h2>
+<p>This controller processes our voice broadcast webform, starting with
+the phone numbers our organizer provided. Because
+they are comma separated we wrote the helper method <code>VolunteersNumbers</code>.</p>
+<p>Next we initiate a phone call to each number using Twilio&#39;s REST API.</p>
+<p>When Twilio connects this call it will make a request to the
+<a href="//www.twilio.com/docs/api/rest/making-calls#url-
+parameter"><code>Url</code></a> parameter to get further instructions. We include a
+<code>recordingUrl</code> parameter in that URL so that our <code>Play</code>
+action method will know which recording to use.</p>
+<p>That makes the work for our <code>Broadcast/Play</code> route simple — we just
+<a href="//www.twilio.com/docs/api/twiml/play"><code>Play</code></a> the recording.</p>
+<hr>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a href="//www.twilio.com/docs/api/twiml/twilio_request">Twilio Voice: Twilio&#39;s Request</a></li>
+</ul>
+</div><div class="step"><h2 id="where-to-next-">Where to next?</h2>
+<p>That&#39;s it! We&#39;ve just implemented two major features of a Rapid Response
+Kit! Maybe in the future we can tackle some of the other features and
+build a full-fledge kit!</p>
+<p>If you&#39;re a .NET developer working with Twilio, you might enjoy these
+other tutorials:</p>
+<p><a href="//www.twilio.com/docs/howto/walkthrough/automated-survey/csharp/mvc"><strong>Automated Survey</strong></a></p>
+<p>Instantly collect structured data from your users with a survey
+conducted over a voice call or SMS text messages. Learn how to create
+your own survey in Rails.</p>
+<p><a href="//www.twilio.com/docs/howto/walkthrough/ivr-phone-tree/csharp/mvc"><strong>IVR: Phone Trees</strong></a></p>
+<p>Create a fully functional automated phone tree, with some <a href="//en.wikipedia.org/wiki/Reese%27s_Pieces#ET:_The_Extra-
+Terrestrial">Reese&#39;s
+Pieces</a> sprinkled about.</p>
+<h3 id="did-this-help-">Did this help?</h3>
+<p>Thanks for checking out this tutorial! If you have any feedback to share
+with us, we&#39;d love to hear it. Tweet
+<a href="http://twitter.com/twilio">@twilio</a> to let us know what you think.</p>
+</div></div>
+<div class="saurus-files" style="display:none;"><textarea class="saurus-file" data-file="ConferenceBroadcast.Web/packages.config" data-mode="xml">77u/PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHBhY2thZ2VzPgogIDxwYWNrYWdlIGlkPSJBbnRsciIgdmVyc2lvbj0iMy40LjEuOTAwNCIgdGFyZ2V0RnJhbWV3b3JrPSJuZXQ0NTEiIC8+CiAgPHBhY2thZ2UgaWQ9ImJvb3RzdHJhcCIgdmVyc2lvbj0iMy4zLjUiIHRhcmdldEZyYW1ld29yaz0ibmV0NDUxIiAvPgogIDxwYWNrYWdlIGlkPSJGb250QXdlc29tZSIgdmVyc2lvbj0iNC40LjAiIHRhcmdldEZyYW1ld29yaz0ibmV0NDUxIiAvPgogIDxwYWNrYWdlIGlkPSJqUXVlcnkiIHZlcnNpb249IjEuMTAuMiIgdGFyZ2V0RnJhbWV3b3JrPSJuZXQ0NTEiIC8+CiAgPHBhY2thZ2UgaWQ9ImpRdWVyeS5WYWxpZGF0aW9uIiB2ZXJzaW9uPSIxLjExLjEiIHRhcmdldEZyYW1ld29yaz0ibmV0NDUxIiAvPgogIDxwYWNrYWdlIGlkPSJNaWNyb3NvZnQuQXNwTmV0Lk12YyIgdmVyc2lvbj0iNS4yLjIiIHRhcmdldEZyYW1ld29yaz0ibmV0NDUxIiAvPgogIDxwYWNrYWdlIGlkPSJNaWNyb3NvZnQuQXNwTmV0LlJhem9yIiB2ZXJzaW9uPSIzLjIuMiIgdGFyZ2V0RnJhbWV3b3JrPSJuZXQ0NTEiIC8+CiAgPHBhY2thZ2UgaWQ9Ik1pY3Jvc29mdC5Bc3BOZXQuV2ViLk9wdGltaXphdGlvbiIgdmVyc2lvbj0iMS4xLjMiIHRhcmdldEZyYW1ld29yaz0ibmV0NDUxIiAvPgogIDxwYWNrYWdlIGlkPSJNaWNyb3NvZnQuQXNwTmV0LldlYlBhZ2VzIiB2ZXJzaW9uPSIzLjIuMiIgdGFyZ2V0RnJhbWV3b3JrPSJuZXQ0NTEiIC8+CiAgPHBhY2thZ2UgaWQ9Ik1pY3Jvc29mdC5qUXVlcnkuVW5vYnRydXNpdmUuVmFsaWRhdGlvbiIgdmVyc2lvbj0iMy4yLjIiIHRhcmdldEZyYW1ld29yaz0ibmV0NDUxIiAvPgogIDxwYWNrYWdlIGlkPSJNaWNyb3NvZnQuV2ViLkluZnJhc3RydWN0dXJlIiB2ZXJzaW9uPSIxLjAuMC4wIiB0YXJnZXRGcmFtZXdvcms9Im5ldDQ1MSIgLz4KICA8cGFja2FnZSBpZD0iTW9kZXJuaXpyIiB2ZXJzaW9uPSIyLjYuMiIgdGFyZ2V0RnJhbWV3b3JrPSJuZXQ0NTEiIC8+CiAgPHBhY2thZ2UgaWQ9Ik5ld3RvbnNvZnQuSnNvbiIgdmVyc2lvbj0iNi4wLjQiIHRhcmdldEZyYW1ld29yaz0ibmV0NDUxIiAvPgogIDxwYWNrYWdlIGlkPSJSZXNwb25kIiB2ZXJzaW9uPSIxLjIuMCIgdGFyZ2V0RnJhbWV3b3JrPSJuZXQ0NTEiIC8+CiAgPHBhY2thZ2UgaWQ9IlJlc3RTaGFycCIgdmVyc2lvbj0iMTA1LjIuMiIgdGFyZ2V0RnJhbWV3b3JrPSJuZXQ0NTEiIC8+CiAgPHBhY2thZ2UgaWQ9IlR3aWxpbyIgdmVyc2lvbj0iNC4xLjAiIHRhcmdldEZyYW1ld29yaz0ibmV0NDUxIiAvPgogIDxwYWNrYWdlIGlkPSJUd2lsaW8uTXZjIiB2ZXJzaW9uPSIzLjEuMTUiIHRhcmdldEZyYW1ld29yaz0ibmV0NDUxIiAvPgogIDxwYWNrYWdlIGlkPSJUd2lsaW8uVHdpTUwiIHZlcnNpb249IjMuNC4wIiB0YXJnZXRGcmFtZXdvcms9Im5ldDQ1MSIgLz4KICA8cGFja2FnZSBpZD0iV2ViR3JlYXNlIiB2ZXJzaW9uPSIxLjUuMiIgdGFyZ2V0RnJhbWV3b3JrPSJuZXQ0NTEiIC8+CjwvcGFja2FnZXM+</textarea>
+<textarea class="saurus-file" data-file="ConferenceBroadcast.Web/Controllers/ConferenceController.cs" data-mode="csharp">77u/dXNpbmcgU3lzdGVtLldlYi5NdmM7CnVzaW5nIENvbmZlcmVuY2VCcm9hZGNhc3QuV2ViLkRvbWFpbi5Ud2lsaW8uQ29uZmlndXJhdGlvbjsKdXNpbmcgVHdpbGlvLlR3aU1MOwp1c2luZyBUd2lsaW8uVHdpTUwuTXZjOwoKbmFtZXNwYWNlIENvbmZlcmVuY2VCcm9hZGNhc3QuV2ViLkNvbnRyb2xsZXJzCnsKICAgIHB1YmxpYyBjbGFzcyBDb25mZXJlbmNlQ29udHJvbGxlciA6IFR3aWxpb0NvbnRyb2xsZXIKICAgIHsKICAgICAgICBwcml2YXRlIHJlYWRvbmx5IElQaG9uZU51bWJlcnMgX3Bob25lTnVtYmVyczsKCiAgICAgICAgcHVibGljIENvbmZlcmVuY2VDb250cm9sbGVyKCkgOiB0aGlzKG5ldyBQaG9uZU51bWJlcnMoKSkge30KCiAgICAgICAgcHVibGljIENvbmZlcmVuY2VDb250cm9sbGVyKElQaG9uZU51bWJlcnMgcGhvbmVOdW1iZXJzKQogICAgICAgIHsKICAgICAgICAgICAgX3Bob25lTnVtYmVycyA9IHBob25lTnVtYmVyczsKICAgICAgICB9CgogICAgICAgIC8vIEdFVDogQ29uZmVyZW5jZQogICAgICAgIHB1YmxpYyBBY3Rpb25SZXN1bHQgSW5kZXgoKQogICAgICAgIHsKICAgICAgICAgICAgVmlld0JhZy5SYXBpZFJlc3BvbnNlTnVtYmVyID0gX3Bob25lTnVtYmVycy5SYXBpZFJlc3BvbnNlOwogICAgICAgICAgICByZXR1cm4gVmlldygpOwogICAgICAgIH0KCiAgICAgICAgLy8gUE9TVDogQ29uZmVyZW5jZS9Kb2luCiAgICAgICAgW0h0dHBQb3N0XQogICAgICAgIHB1YmxpYyBBY3Rpb25SZXN1bHQgSm9pbigpCiAgICAgICAgewogICAgICAgICAgICB2YXIgcmVzcG9uc2UgPSBuZXcgVHdpbGlvUmVzcG9uc2UoKTsKICAgICAgICAgICAgcmVzcG9uc2UuU2F5KCJZb3UgYXJlIGFib3V0IHRvIGpvaW4gdGhlIFJhcGlkIFJlc3BvbnNlIGNvbmZlcmVuY2UiKTsKICAgICAgICAgICAgcmVzcG9uc2UuQmVnaW5HYXRoZXIobmV3IHthY3Rpb24gPSBAVXJsLkFjdGlvbigiQ29ubmVjdCIpfSkKICAgICAgICAgICAgICAgIC5TYXkoIlByZXNzIDEgdG8gam9pbiBhcyBhIGxpc3RlbmVyIikKICAgICAgICAgICAgICAgIC5TYXkoIlByZXNzIDIgdG8gam9pbiBhcyBhIHNwZWFrZXIiKQogICAgICAgICAgICAgICAgLlNheSgiUHJlc3MgMyB0byBqb2luIGFzIHRoZSBtb2RlcmF0b3IiKQogICAgICAgICAgICAgICAgLkVuZEdhdGhlcigpOwoKICAgICAgICAgICAgcmV0dXJuIFR3aU1MKHJlc3BvbnNlKTsKICAgICAgICB9CgogICAgICAgIC8vIFBPU1Q6IENvbmZlcmVuY2UvQ29ubmVjdAogICAgICAgIFtIdHRwUG9zdF0KICAgICAgICBwdWJsaWMgQWN0aW9uUmVzdWx0IENvbm5lY3Qoc3RyaW5nIGRpZ2l0cykKICAgICAgICB7CiAgICAgICAgICAgIHZhciBpc011dGVkID0gZGlnaXRzLkVxdWFscygiMSIpOyAvLyBMaXN0ZW5lcgogICAgICAgICAgICB2YXIgY2FuQ29udHJvbENvbmZlcmVuY2VPbkVudGVyID0gZGlnaXRzLkVxdWFscygiMyIpOyAvLyBNb2RlcmF0b3IKCiAgICAgICAgICAgIHZhciByZXNwb25zZSA9IG5ldyBUd2lsaW9SZXNwb25zZSgpOwogICAgICAgICAgICByZXNwb25zZS5TYXkoIllvdSBoYXZlIGpvaW5lZCB0aGUgY29uZmVyZW5jZSIpOwogICAgICAgICAgICByZXNwb25zZS5EaWFsKCkKICAgICAgICAgICAgICAgIC5EaWFsQ29uZmVyZW5jZSgiUmFwaWRSZXNwb25zZVJvb20iLCBuZXcKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICB3YWl0VXJsID0gImh0dHA6Ly90d2ltbGV0cy5jb20vaG9sZG11c2ljP0J1Y2tldD1jb20udHdpbGlvLm11c2ljLmFtYmllbnQiLAogICAgICAgICAgICAgICAgICAgIG11dGVkID0gaXNNdXRlZCwKICAgICAgICAgICAgICAgICAgICBzdGFydENvbmZlcmVuY2VPbkVudGVyID0gY2FuQ29udHJvbENvbmZlcmVuY2VPbkVudGVyLAogICAgICAgICAgICAgICAgICAgIGVuZENvbmZlcmVuY2VPbkV4aXQgPSBjYW5Db250cm9sQ29uZmVyZW5jZU9uRW50ZXIKICAgICAgICAgICAgICAgIH0pOwoKICAgICAgICAgICAgcmV0dXJuIFR3aU1MKHJlc3BvbnNlKTsKICAgICAgICB9CiAgICB9Cn0K</textarea>
+<textarea class="saurus-file" data-file="ConferenceBroadcast.Web/Controllers/RecordingsController.cs" data-mode="csharp">77u/dXNpbmcgU3lzdGVtLkxpbnE7CnVzaW5nIFN5c3RlbS5XZWIuTXZjOwp1c2luZyBTeXN0ZW0uV2ViLlJvdXRpbmc7CnVzaW5nIENvbmZlcmVuY2VCcm9hZGNhc3QuV2ViLkRvbWFpbi5Ud2lsaW87CnVzaW5nIENvbmZlcmVuY2VCcm9hZGNhc3QuV2ViLkRvbWFpbi5Ud2lsaW8uQ29uZmlndXJhdGlvbjsKdXNpbmcgVHdpbGlvOwp1c2luZyBUd2lsaW8uVHdpTUw7CnVzaW5nIFR3aWxpby5Ud2lNTC5NdmM7CnVzaW5nIENsaWVudCA9IENvbmZlcmVuY2VCcm9hZGNhc3QuV2ViLkRvbWFpbi5Ud2lsaW8uQ2xpZW50OwoKbmFtZXNwYWNlIENvbmZlcmVuY2VCcm9hZGNhc3QuV2ViLkNvbnRyb2xsZXJzCnsKICAgIHB1YmxpYyBjbGFzcyBSZWNvcmRpbmdzQ29udHJvbGxlciA6IFR3aWxpb0NvbnRyb2xsZXIKICAgIHsKICAgICAgICBwcml2YXRlIHJlYWRvbmx5IElDbGllbnQgX2NsaWVudDsKICAgICAgICBwcml2YXRlIHJlYWRvbmx5IElQaG9uZU51bWJlcnMgX3Bob25lTnVtYmVyczsKICAgICAgICBwcml2YXRlIElDdXN0b21SZXF1ZXN0IF9jdXN0b21SZXF1ZXN0OwoKICAgICAgICBwdWJsaWMgUmVjb3JkaW5nc0NvbnRyb2xsZXIoKSA6IHRoaXMobmV3IENsaWVudCgpLCBuZXcgUGhvbmVOdW1iZXJzKCkpIHt9CgogICAgICAgIHB1YmxpYyBSZWNvcmRpbmdzQ29udHJvbGxlcihJQ2xpZW50IGNsaWVudCwgSVBob25lTnVtYmVycyBwaG9uZU51bWJlcnMsIElDdXN0b21SZXF1ZXN0IGN1c3RvbVJlcXVlc3QgPSBudWxsKQogICAgICAgIHsKICAgICAgICAgICAgX2NsaWVudCA9IGNsaWVudDsKICAgICAgICAgICAgX3Bob25lTnVtYmVycyA9IHBob25lTnVtYmVyczsKICAgICAgICAgICAgX2N1c3RvbVJlcXVlc3QgPSBjdXN0b21SZXF1ZXN0OwogICAgICAgIH0KCiAgICAgICAgcHJvdGVjdGVkIG92ZXJyaWRlIHZvaWQgSW5pdGlhbGl6ZShSZXF1ZXN0Q29udGV4dCByZXF1ZXN0Q29udGV4dCkKICAgICAgICB7CiAgICAgICAgICAgIGJhc2UuSW5pdGlhbGl6ZShyZXF1ZXN0Q29udGV4dCk7CiAgICAgICAgICAgIF9jdXN0b21SZXF1ZXN0ID0gbmV3IEN1c3RvbVJlcXVlc3QocmVxdWVzdENvbnRleHQuSHR0cENvbnRleHQuUmVxdWVzdCk7CiAgICAgICAgfQoKICAgICAgICAvLyBHRVQ6IFJlY29yZGluZ3MKICAgICAgICBwdWJsaWMgQWN0aW9uUmVzdWx0IEluZGV4KCkKICAgICAgICB7CiAgICAgICAgICAgIHZhciByZWNvcmRpbmdzID0gX2NsaWVudC5SZWNvcmRpbmdzKCkKICAgICAgICAgICAgICAgIC5TZWxlY3QociA9PiBuZXcKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICB1cmwgPSBSZXNvbHZlVXJsKHIuVXJpLlRvU3RyaW5nKCkpLAogICAgICAgICAgICAgICAgICAgIGRhdGUgPSByLkRhdGVDcmVhdGVkLlRvU3RyaW5nKCJkZGQsIGRkIE1NTSB5eXl5IEhIOm1tOnNzIikKICAgICAgICAgICAgICAgIH0pOwoKICAgICAgICAgICAgcmV0dXJuIEpzb24ocmVjb3JkaW5ncywgSnNvblJlcXVlc3RCZWhhdmlvci5BbGxvd0dldCk7CiAgICAgICAgfQoKICAgICAgICAvLyBQT1NUOiBSZWNvcmRpbmdzL0NyZWF0ZQogICAgICAgIFtIdHRwUG9zdF0KICAgICAgICBwdWJsaWMgQWN0aW9uUmVzdWx0IENyZWF0ZShzdHJpbmcgcGhvbmVOdW1iZXIpCiAgICAgICAgewogICAgICAgICAgICB2YXIgdXJsID0gc3RyaW5nLkZvcm1hdCgiezB9ezF9IiwgX2N1c3RvbVJlcXVlc3QuVXJsLCBVcmwuQWN0aW9uKCJSZWNvcmQiKSk7CiAgICAgICAgICAgIF9jbGllbnQuQ2FsbChuZXcgQ2FsbE9wdGlvbnMKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgRnJvbSA9IF9waG9uZU51bWJlcnMuVHdpbGlvLAogICAgICAgICAgICAgICAgVG8gPSBwaG9uZU51bWJlciwKICAgICAgICAgICAgICAgIC8vIElmIHRoZXJlIGlzIG5vIG5ncm9rIGRlcGVuZGVuY3kgd2UgY2FuIHVzZToKICAgICAgICAgICAgICAgIC8vIFVybC5BY3Rpb24oIkFjdGlvbiIsICJDb250cm9sbGVyIiwgbnVsbCwgUmVxdWVzdC5VcmwuU2NoZW1lKTsKICAgICAgICAgICAgICAgIFVybCA9IHN0cmluZy5Gb3JtYXQoInswfXsxfSIsIF9jdXN0b21SZXF1ZXN0LlVybCwgVXJsLkFjdGlvbigiUmVjb3JkIikpCiAgICAgICAgICAgIH0pOwoKICAgICAgICAgICAgcmV0dXJuIG5ldyBFbXB0eVJlc3VsdCgpOwogICAgICAgIH0KCiAgICAgICAgLy8gUE9TVDogUmVjb3JkaW5nL1JlY29yZAogICAgICAgIFtIdHRwUG9zdF0KICAgICAgICBwdWJsaWMgQWN0aW9uUmVzdWx0IFJlY29yZCgpCiAgICAgICAgewogICAgICAgICAgICB2YXIgcmVzcG9uc2UgPSBuZXcgVHdpbGlvUmVzcG9uc2UoKTsKICAgICAgICAgICAgcmVzcG9uc2UuU2F5KAogICAgICAgICAgICAgICAgIlBsZWFzZSByZWNvcmQgeW91ciBtZXNzYWdlIGFmdGVyIHRoZSBiZWVwLiBQcmVzcyBzdGFyIHRvIGVuZCB5b3VyIHJlY29yZGluZyIpOwogICAgICAgICAgICByZXNwb25zZS5SZWNvcmQobmV3CiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGZpbmlzaE9uS2V5ID0gIioiLAogICAgICAgICAgICAgICAgYWN0aW9uID0gVXJsLkFjdGlvbigiSGFuZ3VwIikKICAgICAgICAgICAgfSk7CgogICAgICAgICAgICByZXR1cm4gVHdpTUwocmVzcG9uc2UpOwogICAgICAgIH0KCiAgICAgICAgLy8gUE9TVDogUmVjb3JkaW5nL0hhbmd1cAogICAgICAgIFtIdHRwUG9zdF0KICAgICAgICBwdWJsaWMgQWN0aW9uUmVzdWx0IEhhbmd1cCgpCiAgICAgICAgewogICAgICAgICAgICB2YXIgcmVzcG9uc2UgPSBuZXcgVHdpbGlvUmVzcG9uc2UoKTsKICAgICAgICAgICAgcmVzcG9uc2UuU2F5KAogICAgICAgICAgICAgICAgIllvdXIgcmVjb3JkaW5nIGhhcyBiZWVuIHNhdmVkLiBHb29kIGJ5ZSIpOwogICAgICAgICAgICByZXNwb25zZS5IYW5ndXAoKTsKCiAgICAgICAgICAgIHJldHVybiBUd2lNTChyZXNwb25zZSk7CiAgICAgICAgfQoKICAgICAgICBwcml2YXRlIHN0YXRpYyBzdHJpbmcgUmVzb2x2ZVVybChzdHJpbmcgdXJpKQogICAgICAgIHsKICAgICAgICAgICAgcmV0dXJuIHN0cmluZy5Gb3JtYXQoCiAgICAgICAgICAgICAgICAiaHR0cHM6Ly9hcGkudHdpbGlvLmNvbXswfSIsIHVyaS5SZXBsYWNlKCIuanNvbiIsICIubXAzIikpOwogICAgICAgIH0KICAgIH0KfQ==</textarea>
+<textarea class="saurus-file" data-file="ConferenceBroadcast.Web/Controllers/BroadcastController.cs" data-mode="csharp">77u/dXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7CnVzaW5nIFN5c3RlbS5MaW5xOwp1c2luZyBTeXN0ZW0uV2ViLk12YzsKdXNpbmcgU3lzdGVtLldlYi5Sb3V0aW5nOwp1c2luZyBDb25mZXJlbmNlQnJvYWRjYXN0LldlYi5Eb21haW4uVHdpbGlvOwp1c2luZyBDb25mZXJlbmNlQnJvYWRjYXN0LldlYi5Eb21haW4uVHdpbGlvLkNvbmZpZ3VyYXRpb247CnVzaW5nIFR3aWxpbzsKdXNpbmcgVHdpbGlvLlR3aU1MOwp1c2luZyBUd2lsaW8uVHdpTUwuTXZjOwp1c2luZyBXZWJHcmVhc2UuQ3NzLkV4dGVuc2lvbnM7CnVzaW5nIENsaWVudCA9IENvbmZlcmVuY2VCcm9hZGNhc3QuV2ViLkRvbWFpbi5Ud2lsaW8uQ2xpZW50OwoKbmFtZXNwYWNlIENvbmZlcmVuY2VCcm9hZGNhc3QuV2ViLkNvbnRyb2xsZXJzCnsKICAgIHB1YmxpYyBjbGFzcyBCcm9hZGNhc3RDb250cm9sbGVyIDogVHdpbGlvQ29udHJvbGxlcgogICAgewogICAgICAgIHByaXZhdGUgcmVhZG9ubHkgSUNsaWVudCBfY2xpZW50OwogICAgICAgIHByaXZhdGUgcmVhZG9ubHkgSVBob25lTnVtYmVycyBfcGhvbmVOdW1iZXJzOwogICAgICAgIHByaXZhdGUgSUN1c3RvbVJlcXVlc3QgX2N1c3RvbVJlcXVlc3Q7CiAgICAgICAgcHVibGljIEJyb2FkY2FzdENvbnRyb2xsZXIoKSA6IHRoaXMobmV3IENsaWVudCgpLCBuZXcgUGhvbmVOdW1iZXJzKCkpIHt9CgogICAgICAgIHB1YmxpYyBCcm9hZGNhc3RDb250cm9sbGVyKElDbGllbnQgY2xpZW50LCBJUGhvbmVOdW1iZXJzIHBob25lTnVtYmVycywgSUN1c3RvbVJlcXVlc3QgY3VzdG9tUmVxdWVzdCA9IG51bGwpCiAgICAgICAgewogICAgICAgICAgICBfY2xpZW50ID0gY2xpZW50OwogICAgICAgICAgICBfcGhvbmVOdW1iZXJzID0gcGhvbmVOdW1iZXJzOwogICAgICAgICAgICBfY3VzdG9tUmVxdWVzdCA9IGN1c3RvbVJlcXVlc3Q7CiAgICAgICAgfQoKICAgICAgICBwcm90ZWN0ZWQgb3ZlcnJpZGUgdm9pZCBJbml0aWFsaXplKFJlcXVlc3RDb250ZXh0IHJlcXVlc3RDb250ZXh0KQogICAgICAgIHsKICAgICAgICAgICAgYmFzZS5Jbml0aWFsaXplKHJlcXVlc3RDb250ZXh0KTsKICAgICAgICAgICAgX2N1c3RvbVJlcXVlc3QgPSBuZXcgQ3VzdG9tUmVxdWVzdChyZXF1ZXN0Q29udGV4dC5IdHRwQ29udGV4dC5SZXF1ZXN0KTsKICAgICAgICB9CgogICAgICAgIC8vIEdFVDogQnJvYWRjYXN0CiAgICAgICAgcHVibGljIEFjdGlvblJlc3VsdCBJbmRleCgpCiAgICAgICAgewogICAgICAgICAgICByZXR1cm4gVmlldygpOwogICAgICAgIH0KCiAgICAgICAgLy8gR0VUOiBCcm9hZGNhc3QvU2VuZAogICAgICAgIHB1YmxpYyBBY3Rpb25SZXN1bHQgU2VuZChzdHJpbmcgbnVtYmVycywgc3RyaW5nIHJlY29yZGluZ1VybCkKICAgICAgICB7CiAgICAgICAgICAgIHZhciB1cmwgPSBzdHJpbmcuRm9ybWF0KCJ7MH17MX0iLCBfY3VzdG9tUmVxdWVzdC5VcmwsIFVybC5BY3Rpb24oIlBsYXkiLCBuZXcge3JlY29yZGluZ1VybH0pKTsKICAgICAgICAgICAgVm9sdW50ZWVyc051bWJlcnMobnVtYmVycykuRm9yRWFjaChudW1iZXIgPT4KICAgICAgICAgICAgICAgIF9jbGllbnQuQ2FsbChuZXcgQ2FsbE9wdGlvbnMKICAgICAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICBGcm9tID0gX3Bob25lTnVtYmVycy5Ud2lsaW8sCiAgICAgICAgICAgICAgICAgICAgVG8gPSBudW1iZXIsCiAgICAgICAgICAgICAgICAgICAgVXJsID0gc3RyaW5nLkZvcm1hdCgiezB9ezF9IiwgX2N1c3RvbVJlcXVlc3QuVXJsLCBVcmwuQWN0aW9uKCJQbGF5IiwgbmV3IHtyZWNvcmRpbmdVcmx9KSkKICAgICAgICAgICAgICAgIH0pKTsKCiAgICAgICAgICAgIHJldHVybiBWaWV3KCk7CiAgICAgICAgfQoKICAgICAgICAvLyBQT1NUOiBCcm9hZGNhc3QvUGxheQogICAgICAgIFtIdHRwUG9zdF0KICAgICAgICBwdWJsaWMgQWN0aW9uUmVzdWx0IFBsYXkoc3RyaW5nIHJlY29yZGluZ1VybCkKICAgICAgICB7CiAgICAgICAgICAgIHZhciByZXNwb25zZSA9IG5ldyBUd2lsaW9SZXNwb25zZSgpOwogICAgICAgICAgICByZXNwb25zZS5QbGF5KHJlY29yZGluZ1VybCk7CgogICAgICAgICAgICByZXR1cm4gVHdpTUwocmVzcG9uc2UpOwogICAgICAgIH0KCiAgICAgICAgcHJpdmF0ZSBzdGF0aWMgSUVudW1lcmFibGU8c3RyaW5nPiBWb2x1bnRlZXJzTnVtYmVycyhzdHJpbmcgbnVtYmVycykKICAgICAgICB7CiAgICAgICAgICAgIHJldHVybiBudW1iZXJzLlNwbGl0KCcsJykuU2VsZWN0KG4gPT4gbi5UcmltKCkpOwogICAgICAgIH0KICAgIH0KfQ==</textarea>
+</div>
+</div><div class="saurus-overview"><ul></ul></div></div><div class="saurus-code"><div class="file-path"><span class="crumb-container"></span><i class="fa fa-fw fa-folder"></i></div><div class="saurus-editor"></div></div><div class="saurus-explorer"><div class="saurus-file-list"></div><a href="https://github.com/TwilioDevEd/conference-broadcast-csharp" target="_blank" class="explorer-get-code"> <i class="fa fa-lg fa-github-square"> </i>View Code on GitHub</a></div></div></div></div><script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script><script src="ace/ace.js"></script><script src="ace/theme-monokai.js"></script><script src="viewsaurus.js"></script></body></html>
