@@ -33,3 +33,225 @@
 
       * [Getting Started with ASP.NET MVC 5](//www.asp.net/mvc/overview/getting-started/introduction/getting-started)
       * [The Twilio C# Helper Library](//www.twilio.com/docs/csharp/install)
+
+  .step(data-file='ConferenceBroadcast.Web/packages.config')
+    :markdown
+      ## Create a Conference Number
+
+      Before we can call our conference line we need to configure one of our
+      Twilio numbers to send our web application an HTTP request when we get
+      an incoming call.
+
+      [Click on one of your numbers](/user/account/phone-numbers/incoming) and
+      configure the Voice URL to point to our app. In our code the route will
+      be `/Conference/Join`.
+
+      ![Configuring a Twilio Number](//s3.amazonaws.com/howtodocs/number-
+      config.png)
+
+      ---
+
+      **See Also:**
+      * [Configuring Twilio Numbers for Voice](/help/faq/voice/how-do-i-assign-my-twilio-number-to-my-voice-application)
+      * [Using ngrok to test your Twilio webhooks locally](//www.twilio.com/blog/2013/10/test-your-webhooks-locally-with-ngrok.html)
+      * [ASP.NET MVC Routing overview](//www.asp.net/mvc/overview/older-versions-1/controllers-and-routing/asp-net-mvc-routing-overview-cs)
+
+  .step(data-file='ConferenceBroadcast.Web/Controllers/ConferenceController.cs', data-highlight='49-57')
+    :markdown
+      ## Create a Simple Conference Call
+
+      Our Twilio number is now configured to [send HTTP
+      requests](//www.twilio.com/docs/api/twiml/twilio_request) to this
+      controller method on any incoming voice calls. Our app responds with
+      [TwiML](//www.twilio.com/docs/api/twiml) to tell Twilio how to
+      handle the call.
+
+      We use the Twilio Ruby library to generate some TwiML that tells
+      Twilio to [`Dial`](//www.twilio.com/docs/api/twiml/dial) into a
+      [Conference](//www.twilio.com/docs/api/twiml/conference) that
+      we're naming `"RapidResponseRoom"`. This means that anyone who calls
+      your Twilio number will automatically join this conference.
+
+      Next we'll turn this into a moderated conference line, with a moderator
+      and listeners.
+
+      ---
+
+      **See Also:**
+
+      * [Using the Twilio.TwiML Helper Library](//www.twilio.com/blog/2012/02/twilio-for-net-developers-part-4-using-the-twilio-twiml-helper-library.html)
+      * [Conference waitUrl parameter](//www.twilio.com/docs/api/twiml/conference#attributes-waitUrl)
+
+  .step(data-file='ConferenceBroadcast.Web/Controllers/ConferenceController.cs', data-highlight='26-39')
+    :markdown
+      ## Create a Moderated Conference
+
+      In this scenario we ask for the caller's role before we connect them to
+      the conference. These roles are:
+      * **Moderator**: can start and end the conference
+      * **Speaker**: can speak on the conference call
+      * **Listener**: is muted and can only listen to the call
+
+      In this controller we [`Say`](//www.twilio.com/docs/api/twiml/say)
+      a simple message and then ask the caller to choose a role. Next we tell
+      Twilio to [`Gather`](//www.twilio.com/docs/api/twiml/gather) a
+      button press from the caller's phone so we know which role they want to
+      use.
+
+      ---
+
+      **See Also:**
+
+      * [Using the Twilio.TwiML Helper Library](//www.twilio.com/blog/2012/02/twilio-for-net-developers-part-4-using-the-twilio-twiml-helper-library.html)
+
+  .step(data-file='ConferenceBroadcast.Web/Controllers/ConferenceController.cs', data-highlight='41-60')
+    :markdown
+      ## Connect to a Moderated Conference
+
+      The `<Gather>` verb from the previous step included an
+      [`action`](//www.twilio.com/docs/api/twiml/gather#attributes-action)
+      parameter that took an absolute or relative URL as a value — in our case,
+      the `Conference/Connect` route.
+
+      When the caller finishes entering digits Twilio makes a GET or POST
+      request to this URL including a
+      [`Digits`](//www.twilio.com/docs/api/twiml/gather#attributes-
+      action-parameters) parameter with the number our caller chose.
+
+      We use that parameter to set a couple variables, `isMuted` and
+      `canControlConferenceOnEnter`, which we then use to configure our
+      [`Dial`](//www.twilio.com/docs/api/twiml/dial) and
+      [`Conference`](//www.twilio.com/docs/api/twiml/conference) TwiML
+      elements.
+
+      ---
+
+      **See Also:**
+
+      * [Conference: muted](//www.twilio.com/docs/api/twiml/conference#attributes-muted)
+      * [Conference: startConferenceOnEnter](//www.twilio.com/docs/api/twiml/conference#attributes-startConferenceOnEnter)
+      * [Conference: endConferenceOnExit](//www.twilio.com/docs/api/twiml/conference#attributes-endConferenceOnExit)
+
+  .step(data-file='ConferenceBroadcast.Web/Controllers/RecordingsController.cs')
+    :markdown
+      ## Voice Broadcast
+
+      ![Rapid Response Kit](http://howtodocs.s3.amazonaws.com/RRK-
+      broadcast.png)
+
+      In addition to hosting conference calls, an organizer can use our
+      application to broadcast a voice message to a list of
+      phone numbers. She can do this by choosing a recording from a dropdown,
+      entering a list of phone numbers and clicking 'Submit'.
+
+      To power this feature, we'll use Twilio's REST API to fetch all of the
+      recordings associated with our account. If our organizer wants to record
+      a new message, we'll call her phone and record her response.
+
+      Let's take a look at the code.
+
+      ---
+
+      **See Also:**
+      * [Twilio REST API Wrapper](//github.com/twilio/twilio-csharp/wiki/Twilio.Api)
+
+  .step(data-file='ConferenceBroadcast.Web/Controllers/RecordingsController.cs', data-highlight='34-45')
+    :markdown
+      ## Fetch Recordings
+
+      This route fetches all of the
+      [`recordings`](//www.twilio.com/docs/api/rest/recording#list-get-
+      example-1) associated with our Twilio account. We could filter these
+      results by date or call sid using Twilio's API, but for this example
+      we just pull all recordings.
+
+      In order to use Twilio's handy API we need to first create our Twilio
+      client, which we can easily do by passing our credentials.
+
+      Once we get all of the recordings we need to render a JSON response of
+      our recordings object. This route will be called by our Javascript on
+      page load.
+
+      As a side note, keep in mind that `_client.Recordings()` is just a thin
+      wrapper for `client.ListRecordings().Recordings` where client is an
+      instance of `TwilioRestClient`.
+
+      ---
+
+      **See Also:**
+
+      * [Twilio REST API: Recordings](//www.twilio.com/docs/api/rest/recording)
+      * [Twilio REST API: Filter Recordings Results](//www.twilio.com/docs/api/rest/recording#list-get-
+        example-4)
+
+  .step(data-file='ConferenceBroadcast.Web/Controllers/RecordingsController.cs', data-highlight='64-90')
+    :markdown
+      ## Recording a new Message
+
+      If the organizer needs to make a new recording, we simply call her
+      and record the call. Twilio makes this simple with the
+      [`Record`](//www.twilio.com/docs/api/twiml/record) verb.
+
+      Here we `Say` something to the caller and then `Record` her message.
+      There are many more options we can pass to Record, but here we simply
+      tell it to stop recording when '*' is pressed.
+
+      ---
+
+      **See Also:**
+
+      * [Recording: Optional Attributes](//www.twilio.com/docs/api/twiml/record#attributes)
+      * [Twilio Helpers for ASP.NET MVC](//github.com/twilio/twilio-csharp/wiki/Twilio.Mvc)
+
+  .step(data-file='ConferenceBroadcast.Web/Controllers/BroadcastController.cs', data-highlight='41-64')
+    :markdown
+      ## Broadcast a Recorded Message
+
+      This controller processes our voice broadcast webform, starting with
+      the phone numbers our organizer provided. Because
+      they are comma separated we wrote the helper method `VolunteersNumbers`.
+
+      Next we initiate a phone call to each number using Twilio's REST API.
+
+      When Twilio connects this call it will make a request to the
+      [`Url`](//www.twilio.com/docs/api/rest/making-calls#url-
+      parameter) parameter to get further instructions. We include a
+      `recordingUrl` parameter in that URL so that our `Play`
+      action method will know which recording to use.
+
+      That makes the work for our `Broadcast/Play` route simple — we just
+      [`Play`](//www.twilio.com/docs/api/twiml/play) the recording.
+
+      ---
+
+      **See Also:**
+      * [Twilio Voice: Twilio's Request](//www.twilio.com/docs/api/twiml/twilio_request)
+
+  .step
+    :markdown
+      ## Where to next?
+
+      That's it! We've just implemented two major features of a Rapid Response
+      Kit! Maybe in the future we can tackle some of the other features and
+      build a full-fledge kit!
+
+      If you're a .NET developer working with Twilio, you might enjoy these
+      other tutorials:
+
+      [**Automated Survey**](//www.twilio.com/docs/howto/walkthrough/automated-survey/csharp/mvc)
+
+      Instantly collect structured data from your users with a survey
+      conducted over a voice call or SMS text messages. Learn how to create
+      your own survey in Rails.
+
+      [**IVR: Phone Trees**](//www.twilio.com/docs/howto/walkthrough/ivr-phone-tree/csharp/mvc)
+
+      Create a fully functional automated phone tree, with some [Reese's
+      Pieces](//en.wikipedia.org/wiki/Reese%27s_Pieces#ET:_The_Extra-
+      Terrestrial) sprinkled about.
+
+      ### Did this help?
+
+      Thanks for checking out this tutorial! If you have any feedback to share
+      with us, we'd love to hear it. Tweet
+      [@twilio](http://twitter.com/twilio) to let us know what you think.
