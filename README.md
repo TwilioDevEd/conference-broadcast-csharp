@@ -16,7 +16,7 @@ An example application implementing an disaster response kit that allows an orga
 2. Create a new file ConferenceBroadcast.Web/Local.config and update the content with:
 
    ```
-   <appSettings file="Local.config">
+   <appSettings>
      <add key="webpages:Version" value="3.0.0.0"/>
      <add key="webpages:Enabled" value="false"/>
      <add key="ClientValidationEnabled" value="true"/>
