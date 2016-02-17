@@ -4,6 +4,8 @@
 
 An example application implementing an disaster response kit that allows an organizer to instantly communicate with volunteers.
 
+[Read the full tutorial here](https://www.twilio.com/docs/tutorials/walkthrough/conference-broadcast/csharp/mvc)!
+
 ### Local development
 
 1. First clone this repository and `cd` into its directory:
