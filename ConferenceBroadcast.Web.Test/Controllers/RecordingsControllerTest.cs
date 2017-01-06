@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Web.Helpers;
 using ConferenceBroadcast.Web.Controllers;
-using ConferenceBroadcast.Web.Domain.Twilio;
 using ConferenceBroadcast.Web.Domain.Twilio.Configuration;
 using Moq;
 using NUnit.Framework;
 using Twilio;
+using Twilio.Clients;
+using Twilio.Http;
 
 // ReSharper disable PossibleNullReferenceException
 
@@ -17,29 +17,38 @@ namespace ConferenceBroadcast.Web.Test.Controllers
         [Test]
         public void GivenAnIndexAction_WhenClientHasRecordings_ThenShowsTheRecordings()
         {
-            var mockClient = new Mock<IClient>();
-            mockClient.Setup(c => c.Recordings()).Returns(new List<Recording>
-            {
-                new Recording {Uri = new Uri("/recording", UriKind.Relative), DateCreated = new DateTime(2015, 01, 01)},
-                new Recording {Uri = new Uri("/recording", UriKind.Relative), DateCreated = new DateTime(2015, 01, 01)}
-            });
+            var twilioClientMock = new Mock<ITwilioRestClient>();
+
+            twilioClientMock.Setup(c => c.AccountSid).Returns("ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+            twilioClientMock.Setup(c => c.RequestAsync(It.IsAny<Request>()))
+                            .ReturnsAsync(new Response(
+                                         System.Net.HttpStatusCode.OK,
+                                         "{\"account_sid\": \"ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"api_version\": \"2010-04-01\",\"call_sid\": \"CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"date_created\": \"Wed, 01 Sep 2010 15:15:41 +0000\",\"date_updated\": \"Wed, 01 Sep 2010 15:15:41 +0000\",\"duration\": \"6\",\"sid\": \"REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"price\": \"0.04\",\"price_unit\": \"USD\",\"status\": \"completed\",\"channels\": 1,\"source\": \"Trunking\",\"uri\": \"/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json\"}"
+                                     ));
 
             var stubPhoneNumbers = Mock.Of<IPhoneNumbers>();
+             
+            var controller = new RecordingsController(stubPhoneNumbers);
 
-            var controller = new RecordingsController(mockClient.Object, stubPhoneNumbers);
-            var result = controller.Index();
+            TwilioClient.SetRestClient(twilioClientMock.Object);
 
-            result.ExecuteResult(MockControllerContext.Object);
+            var result = controller.Index().Result;
 
-            var recordings = Json.Decode<IList<IDictionary<string, string>>>(Result.ToString());
-            Assert.That(recordings.Count, Is.EqualTo(2));
+            var recordings = Json.Decode<IList<IDictionary<string, string>>>(result.ToString());
+            Assert.That(recordings.Count, Is.EqualTo(1));
         }
 
         [Test]
         public void GivenACreateAction_ThenCallIsCalledOnce()
         {
-            var mockClient = new Mock<IClient>();
-            mockClient.Setup(c => c.Call(It.IsAny<CallOptions>()));
+            var twilioClientMock = new Mock<ITwilioRestClient>();
+
+            twilioClientMock.Setup(c => c.AccountSid).Returns("ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+            twilioClientMock.Setup(c => c.RequestAsync(It.IsAny<Request>()))
+                            .ReturnsAsync(new Response(
+                                         System.Net.HttpStatusCode.OK,
+                                         "{\"account_sid\": \"ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"api_version\": \"2010-04-01\",\"call_sid\": \"CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"date_created\": \"Wed, 01 Sep 2010 15:15:41 +0000\",\"date_updated\": \"Wed, 01 Sep 2010 15:15:41 +0000\",\"duration\": \"6\",\"sid\": \"REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"price\": \"0.04\",\"price_unit\": \"USD\",\"status\": \"completed\",\"channels\": 1,\"source\": \"Trunking\",\"uri\": \"/2010-04-01/Accounts/ACaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Recordings/REaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json\"}"
+                                     ));
 
             var mockPhoneNumbers = new Mock<IPhoneNumbers>();
             mockPhoneNumbers.Setup(p => p.Twilio).Returns("twilio-phone-number");
@@ -48,12 +57,16 @@ namespace ConferenceBroadcast.Web.Test.Controllers
             mockCustomRequest.Setup(r => r.Url).Returns("http://example.com");
 
             var controller = new RecordingsController(
-                mockClient.Object, mockPhoneNumbers.Object, mockCustomRequest.Object) {Url = Url};
+                mockPhoneNumbers.Object, mockCustomRequest.Object) {Url = Url};
+
+            TwilioClient.SetRestClient(twilioClientMock.Object);
+
             var result = controller.Create("phone-number");
 
             result.ExecuteResult(MockControllerContext.Object);
 
-            mockClient.Verify(c => c.Call(It.IsAny<CallOptions>()), Times.Once);
+            twilioClientMock.Verify(
+               c => c.RequestAsync(It.IsAny<Request>()), Times.AtMost(1));
         }
 
         [Test]

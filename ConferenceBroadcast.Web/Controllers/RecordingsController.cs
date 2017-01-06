@@ -1,26 +1,25 @@
 ﻿using System.Linq;
 using System.Web.Mvc;
 using System.Web.Routing;
-using ConferenceBroadcast.Web.Domain.Twilio;
 using ConferenceBroadcast.Web.Domain.Twilio.Configuration;
-using Twilio;
-using Twilio.TwiML;
-using Twilio.TwiML.Mvc;
 using Client = ConferenceBroadcast.Web.Domain.Twilio.Client;
+using Twilio.Types;
+using Twilio.Rest.Api.V2010.Account;
+using Twilio.TwiML;
+using System.Threading.Tasks;
 
 namespace ConferenceBroadcast.Web.Controllers
 {
-    public class RecordingsController : TwilioController
+    public class RecordingsController : Controller
     {
-        private readonly IClient _client;
         private readonly IPhoneNumbers _phoneNumbers;
         private ICustomRequest _customRequest;
 
-        public RecordingsController() : this(new Client(), new PhoneNumbers()) {}
+        public RecordingsController() : this(new PhoneNumbers()) {}
 
-        public RecordingsController(IClient client, IPhoneNumbers phoneNumbers, ICustomRequest customRequest = null)
+        public RecordingsController(IPhoneNumbers phoneNumbers, ICustomRequest customRequest = null)
         {
-            _client = client;
+            new Client();
             _phoneNumbers = phoneNumbers;
             _customRequest = customRequest;
         }
@@ -32,16 +31,17 @@ namespace ConferenceBroadcast.Web.Controllers
         }
 
         // GET: Recordings
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            var recordings = _client.Recordings()
-                .Select(r => new
-                {
-                    url = ResolveUrl(r.Uri.ToString()),
-                    date = r.DateCreated.ToString("ddd, dd MMM yyyy HH:mm:ss")
-                });
+            var recordings = await RecordingResource.ReadAsync();
 
-            return Json(recordings, JsonRequestBehavior.AllowGet);
+            var formattedRecordings = recordings.Select(r => new
+            {
+                url = ResolveUrl(r.Uri.ToString()),
+                date = r.DateCreated?.ToString("ddd, dd MMM yyyy HH:mm:ss")
+            });
+
+            return Json(formattedRecordings, JsonRequestBehavior.AllowGet);
         }
 
         // POST: Recordings/Create
@@ -49,14 +49,9 @@ namespace ConferenceBroadcast.Web.Controllers
         public ActionResult Create(string phoneNumber)
         {
             var url = string.Format("{0}{1}", _customRequest.Url, Url.Action("Record"));
-            _client.Call(new CallOptions
-            {
-                From = _phoneNumbers.Twilio,
-                To = phoneNumber,
-                // If there is no ngrok dependency we can use:
-                // Url.Action("Action", "Controller", null, Request.Url.Scheme);
-                Url = string.Format("{0}{1}", _customRequest.Url, Url.Action("Record"))
-            });
+
+            CallResource.Create(new PhoneNumber(phoneNumber),
+                from: new PhoneNumber(_phoneNumbers.Twilio), url: new System.Uri(url));
 
             return new EmptyResult();
         }
@@ -65,28 +60,25 @@ namespace ConferenceBroadcast.Web.Controllers
         [HttpPost]
         public ActionResult Record()
         {
-            var response = new TwilioResponse();
+            var response = new VoiceResponse();
             response.Say(
-                "Please record your message after the beep. Press star to end your recording");
-            response.Record(new
-            {
-                finishOnKey = "*",
-                action = Url.Action("Hangup")
-            });
+                "Please record your message after the beep. Press star to end your recording.");
+            response.Record(finishOnKey: "*",
+                            action: Url.Action("Hangup"));
 
-            return TwiML(response);
+            return Content(response.ToString(), "text/xml");
         }
 
         // POST: Recording/Hangup
         [HttpPost]
         public ActionResult Hangup()
         {
-            var response = new TwilioResponse();
+            var response = new VoiceResponse();
             response.Say(
-                "Your recording has been saved. Good bye");
+                "Your recording has been saved. Good bye!");
             response.Hangup();
 
-            return TwiML(response);
+            return Content(response.ToString(), "text/xml");
         }
 
         private static string ResolveUrl(string uri)
