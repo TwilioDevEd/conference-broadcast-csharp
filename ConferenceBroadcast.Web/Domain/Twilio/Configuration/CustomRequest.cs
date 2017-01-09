@@ -30,9 +30,7 @@ namespace ConferenceBroadcast.Web.Domain.Twilio.Configuration
         {
             get
             {
-                return _request.Url.Authority.Contains("localhost")
-                    ? WebConfigurationManager.AppSettings["NgrokRequestUrl"]
-                    : string.Format("{0}://{1}", _request.Url.Scheme, _request.Url.Authority);
+                return _request.Headers.GetValues("Origin")[0];
             }
         }
     }

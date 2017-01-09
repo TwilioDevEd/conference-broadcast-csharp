@@ -25,7 +25,6 @@ An example application implementing an disaster response kit that allows an orga
      <add key="UnobtrusiveJavaScriptEnabled" value="true"/>
      <add key="TwilioAccountSid" value="Your Twilio Account SID" />
      <add key="TwilioAuthToken" value="Your Twilio Auth Token" />
-     <add key="RequestUrl" value="The Request URL" />
      <add key="TwilioPhoneNumber" value="Your Twilio Phone Number" />
      <add key="RapidResponsePhoneNumber" value="Your Rapid Response Phone Number" />
    </appSettings>
