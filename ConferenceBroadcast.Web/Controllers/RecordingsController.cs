@@ -2,24 +2,23 @@
 using System.Web.Mvc;
 using System.Web.Routing;
 using ConferenceBroadcast.Web.Domain.Twilio.Configuration;
-using Client = ConferenceBroadcast.Web.Domain.Twilio.Client;
-using Twilio.Types;
-using Twilio.Rest.Api.V2010.Account;
 using Twilio.TwiML;
 using System.Threading.Tasks;
+using ConferenceBroadcast.Web.Domain.Twilio;
 
 namespace ConferenceBroadcast.Web.Controllers
 {
     public class RecordingsController : Controller
     {
         private readonly IPhoneNumbers _phoneNumbers;
+        private readonly IClient _client;
         private ICustomRequest _customRequest;
 
-        public RecordingsController() : this(new PhoneNumbers()) {}
+        public RecordingsController() : this(new Client(), new PhoneNumbers()) {}
 
-        public RecordingsController(IPhoneNumbers phoneNumbers, ICustomRequest customRequest = null)
+        public RecordingsController(IClient client, IPhoneNumbers phoneNumbers, ICustomRequest customRequest = null)
         {
-            new Client();
+            _client = client;
             _phoneNumbers = phoneNumbers;
             _customRequest = customRequest;
         }
@@ -33,7 +32,7 @@ namespace ConferenceBroadcast.Web.Controllers
         // GET: Recordings
         public async Task<ActionResult> Index()
         {
-            var recordings = await RecordingResource.ReadAsync();
+            var recordings = await _client.Recordings();
 
             var formattedRecordings = recordings.Select(r => new
             {
@@ -46,12 +45,11 @@ namespace ConferenceBroadcast.Web.Controllers
 
         // POST: Recordings/Create
         [HttpPost]
-        public ActionResult Create(string phoneNumber)
+        public async Task<ActionResult> Create(string phoneNumber)
         {
-            var url = string.Format("{0}{1}", _customRequest.Url, Url.Action("Record"));
+            var url = $"{_customRequest.Url}{Url.Action("Record")}";
 
-            CallResource.Create(new PhoneNumber(phoneNumber),
-                from: new PhoneNumber(_phoneNumbers.Twilio), url: new System.Uri(url));
+            await _client.Call(phoneNumber, _phoneNumbers.Twilio, url);
 
             return new EmptyResult();
         }
@@ -61,10 +59,9 @@ namespace ConferenceBroadcast.Web.Controllers
         public ActionResult Record()
         {
             var response = new VoiceResponse();
-            response.Say(
-                "Please record your message after the beep. Press star to end your recording.");
-            response.Record(finishOnKey: "*",
-                            action: Url.Action("Hangup"));
+            response
+                .Say("Please record your message after the beep. Press star to end your recording.")
+                .Record(finishOnKey: "*", action: Url.Action("Hangup"));
 
             return Content(response.ToString(), "text/xml");
         }
@@ -74,17 +71,16 @@ namespace ConferenceBroadcast.Web.Controllers
         public ActionResult Hangup()
         {
             var response = new VoiceResponse();
-            response.Say(
-                "Your recording has been saved. Good bye!");
-            response.Hangup();
+            response
+                .Say("Your recording has been saved. Good bye!")
+                .Hangup();
 
             return Content(response.ToString(), "text/xml");
         }
 
         private static string ResolveUrl(string uri)
         {
-            return string.Format(
-                "https://api.twilio.com{0}", uri.Replace(".json", ".mp3"));
+            return $"https://api.twilio.com{uri.Replace(".json", ".mp3")}";
         }
     }
 }
