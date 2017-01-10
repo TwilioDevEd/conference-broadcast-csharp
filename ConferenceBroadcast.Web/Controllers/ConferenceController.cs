@@ -45,12 +45,15 @@ namespace ConferenceBroadcast.Web.Controllers
 
             var response = new VoiceResponse();
             response.Say("You have joined the conference");
+
             var dial = new Dial();
             dial.Conference("RapidResponseRoom",
                 waitUrl: "http://twimlets.com/holdmusic?Bucket=com.twilio.music.ambient",
                 muted: isMuted,
                 startConferenceOnEnter: canControlConferenceOnEnter,
                 endConferenceOnExit: canControlConferenceOnEnter);
+
+            response.Dial(dial);
 
             return Content(response.ToString(), "text/xml");
         }
