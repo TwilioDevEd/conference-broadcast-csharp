@@ -1,3 +1,7 @@
+<a href="https://www.twilio.com">
+  <img src="https://static0.twilio.com/marketing/bundles/marketing/img/logos/wordmark-red.svg" alt="Twilio" width="250" />
+</a>
+
 # Rapid Response Kit: Building Conferencing and Broadcasting with Twilio. Level: Intermediate. Powered by Twilio - ASP.NET MVC
 
 [![Build status](https://ci.appveyor.com/api/projects/status/j65aeh8inbqlav0s?svg=true)](https://ci.appveyor.com/project/TwilioDevEd/conference-broadcast-csharp)
@@ -25,7 +29,6 @@ An example application implementing an disaster response kit that allows an orga
      <add key="UnobtrusiveJavaScriptEnabled" value="true"/>
      <add key="TwilioAccountSid" value="Your Twilio Account SID" />
      <add key="TwilioAuthToken" value="Your Twilio Auth Token" />
-     <add key="RequestUrl" value="The Request URL" />
      <add key="TwilioPhoneNumber" value="Your Twilio Phone Number" />
      <add key="RapidResponsePhoneNumber" value="Your Rapid Response Phone Number" />
    </appSettings>
