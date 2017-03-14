@@ -1,10 +1,11 @@
-﻿using System.Web.Mvc;
-using ConferenceBroadcast.Web.Domain.Twilio.Configuration;
+﻿using ConferenceBroadcast.Web.Domain.Twilio.Configuration;
+using System.Web.Mvc;
+using Twilio.AspNet.Mvc;
 using Twilio.TwiML;
 
 namespace ConferenceBroadcast.Web.Controllers
 {
-    public class ConferenceController : Controller
+    public class ConferenceController : TwilioController
     {
         private readonly IPhoneNumbers _phoneNumbers;
 
@@ -33,7 +34,7 @@ namespace ConferenceBroadcast.Web.Controllers
                                     .Say("Press 2 to join as a speaker")
                                     .Say("Press 3 to join as the moderator"));
 
-            return Content(response.ToString(), "text/xml");
+            return TwiML(response);
         }
 
         // POST: Conference/Connect
@@ -55,7 +56,7 @@ namespace ConferenceBroadcast.Web.Controllers
 
             response.Dial(dial);
 
-            return Content(response.ToString(), "text/xml");
+            return TwiML(response);
         }
     }
 }

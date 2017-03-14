@@ -1,5 +1,4 @@
-﻿using System;
-using Client = ConferenceBroadcast.Web.Domain.Twilio.Client;
+﻿using Client = ConferenceBroadcast.Web.Domain.Twilio.Client;
 using ConferenceBroadcast.Web.Domain.Twilio;
 using ConferenceBroadcast.Web.Domain.Twilio.Configuration;
 ﻿using System.Collections.Generic;
@@ -7,15 +6,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Routing;
-using Twilio.Rest.Api.V2010.Account;
+using Twilio.AspNet.Mvc;
 using Twilio.TwiML;
-using Twilio.Types;
-using WebGrease.Css.Extensions;
-
 
 namespace ConferenceBroadcast.Web.Controllers
 {
-    public class BroadcastController : Controller
+    public class BroadcastController : TwilioController
     {
         private readonly IPhoneNumbers _phoneNumbers;
         private readonly IClient _client;
@@ -62,7 +58,7 @@ namespace ConferenceBroadcast.Web.Controllers
             var response = new VoiceResponse();
             response.Play(recordingUrl);
 
-            return Content(response.ToString(), "text/xml");
+            return TwiML(response);
         }
 
         private static IEnumerable<string> VolunteersNumbers(string numbers)

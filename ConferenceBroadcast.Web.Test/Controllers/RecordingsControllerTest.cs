@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Web.Helpers;
+using System.Linq;
 using ConferenceBroadcast.Web.Controllers;
 using ConferenceBroadcast.Web.Domain.Twilio;
 using ConferenceBroadcast.Web.Domain.Twilio.Configuration;
 using Moq;
 using NUnit.Framework;
+using TestStack.FluentMVCTesting;
 using Twilio.Rest.Api.V2010.Account;
 
 // ReSharper disable PossibleNullReferenceException
@@ -14,7 +15,7 @@ namespace ConferenceBroadcast.Web.Test.Controllers
     public class RecordingsControllerTest : ControllerTest
     {
         [Test]
-        public async void GivenAnIndexAction_WhenClientHasRecordings_ThenShowsTheRecordings()
+        public void GivenAnIndexAction_WhenClientHasRecordings_ThenShowsTheRecordings()
         {
             var mockClient = new Mock<IClient>();
 
@@ -24,20 +25,17 @@ namespace ConferenceBroadcast.Web.Test.Controllers
             };
 
             mockClient.Setup(c => c.Recordings()).ReturnsAsync(recordingsFromApi);
+
             var stubPhoneNumbers = Mock.Of<IPhoneNumbers>();
-             
             var controller = new RecordingsController(mockClient.Object, stubPhoneNumbers);
+            var result = controller.WithCallTo(c => c.Index()).ShouldReturnJson();
+            var recordings = (result.Data as IEnumerable<object>).ToList();
 
-            var result = await controller.Index();
-
-            result.ExecuteResult(MockControllerContext.Object);
-
-            var recordings = Json.Decode<IList<IDictionary<string, string>>>(Result.ToString());
-            Assert.That(recordings.Count, Is.EqualTo(1));
+            Assert.That(recordings.Count(), Is.EqualTo(1));
         }
 
         [Test]
-        public async void GivenACreateAction_ThenCallIsCalledOnce()
+        public void GivenACreateAction_ThenCallIsCalledOnce()
         {
             var mockClient = new Mock<IClient>();
             var mockPhoneNumbers = new Mock<IPhoneNumbers>();
@@ -49,7 +47,7 @@ namespace ConferenceBroadcast.Web.Test.Controllers
             var controller = new RecordingsController(
                 mockClient.Object, mockPhoneNumbers.Object, mockCustomRequest.Object) {Url = Url};
 
-            await controller.Create("phone-number");
+            controller.WithCallTo(c => c.Create("phone-number")).ShouldReturnEmptyResult();
 
             mockClient.Verify(
                 c => c.Call("phone-number", "twilio-phone-number", "http://example.com/Recordings/Record"));
