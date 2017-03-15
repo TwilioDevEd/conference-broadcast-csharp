@@ -1,12 +1,10 @@
-﻿using ConferenceBroadcast.Web.Controllers;
+﻿using System.Web.Mvc;
+using ConferenceBroadcast.Web.Controllers;
 using ConferenceBroadcast.Web.Domain.Twilio;
 using ConferenceBroadcast.Web.Domain.Twilio.Configuration;
 using Moq;
 using NUnit.Framework;
 using TestStack.FluentMVCTesting;
-using Twilio;
-using Twilio.Clients;
-using Twilio.Http;
 
 // ReSharper disable PossibleNullReferenceException
 
@@ -23,7 +21,7 @@ namespace ConferenceBroadcast.Web.Test.Controllers
         }
 
         [Test]
-        public async void GivenASendAction_When2PhoneNumbersAreProvided_ThenCallIsCalledTwice()
+        public void GivenASendAction_When2PhoneNumbersAreProvided_ThenCallIsCalledTwice()
         {
             const string baseUrl = "http://example.com";
             string broadcastPlayUrl = $"{baseUrl}/Broadcast/Play?recordingUrl=recording-url";
@@ -42,7 +40,9 @@ namespace ConferenceBroadcast.Web.Test.Controllers
                 mockCustomRequest.Object
                 ) {Url = Url};
 
-            await controller.Send("phone-one, phone-two", "recording-url");
+
+            controller.WithCallTo(c => c.Send("phone-one, phone-two", "recording-url"))
+                .ShouldRenderView("Send");
 
             clientMock.Verify(c => c.Call("phone-one", twilioNumber, broadcastPlayUrl));
             clientMock.Verify(c => c.Call("phone-two", twilioNumber, broadcastPlayUrl));

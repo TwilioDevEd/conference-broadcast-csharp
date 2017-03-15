@@ -1,14 +1,15 @@
-﻿using System.Linq;
+﻿using ConferenceBroadcast.Web.Domain.Twilio;
+using ConferenceBroadcast.Web.Domain.Twilio.Configuration;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Routing;
-using ConferenceBroadcast.Web.Domain.Twilio.Configuration;
+using Twilio.AspNet.Mvc;
 using Twilio.TwiML;
-using System.Threading.Tasks;
-using ConferenceBroadcast.Web.Domain.Twilio;
 
 namespace ConferenceBroadcast.Web.Controllers
 {
-    public class RecordingsController : Controller
+    public class RecordingsController : TwilioController
     {
         private readonly IPhoneNumbers _phoneNumbers;
         private readonly IClient _client;
@@ -63,7 +64,7 @@ namespace ConferenceBroadcast.Web.Controllers
                 .Say("Please record your message after the beep. Press star to end your recording.")
                 .Record(finishOnKey: "*", action: Url.Action("Hangup"));
 
-            return Content(response.ToString(), "text/xml");
+            return TwiML(response);
         }
 
         // POST: Recording/Hangup
@@ -75,7 +76,7 @@ namespace ConferenceBroadcast.Web.Controllers
                 .Say("Your recording has been saved. Good bye!")
                 .Hangup();
 
-            return Content(response.ToString(), "text/xml");
+            return TwiML(response);
         }
 
         private static string ResolveUrl(string uri)
