@@ -1,7 +1,7 @@
-﻿using Client = ConferenceBroadcast.Web.Domain.Twilio.Client;
+using Client = ConferenceBroadcast.Web.Domain.Twilio.Client;
 using ConferenceBroadcast.Web.Domain.Twilio;
 using ConferenceBroadcast.Web.Domain.Twilio.Configuration;
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
