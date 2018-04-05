@@ -42,7 +42,7 @@ namespace ConferenceBroadcast.Web.Controllers
         // GET: Broadcast/Send
         public async Task<ActionResult> Send(string numbers, string recordingUrl)
         {
-            var url = $"{_customRequest.Url}{Url.Action("Play", new {recordingUrl})}";
+            var url = _customRequest.Url + Url.Action("Play", new {recordingUrl});
 
             var calls = VolunteersNumbers(numbers).Select(
                 number => _client.Call(number, _phoneNumbers.Twilio, url));
