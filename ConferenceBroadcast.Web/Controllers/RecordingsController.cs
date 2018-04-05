@@ -1,19 +1,17 @@
 ﻿using System.Linq;
 using System.Web.Mvc;
 using System.Web.Routing;
-using ConferenceBroadcast.Web.Domain.Twilio;
 using ConferenceBroadcast.Web.Domain.Twilio.Configuration;
-using Twilio;
 using Twilio.TwiML;
-using Twilio.TwiML.Mvc;
-using Client = ConferenceBroadcast.Web.Domain.Twilio.Client;
+using System.Threading.Tasks;
+using ConferenceBroadcast.Web.Domain.Twilio;
 
 namespace ConferenceBroadcast.Web.Controllers
 {
-    public class RecordingsController : TwilioController
+    public class RecordingsController : Controller
     {
-        private readonly IClient _client;
         private readonly IPhoneNumbers _phoneNumbers;
+        private readonly IClient _client;
         private ICustomRequest _customRequest;
 
         public RecordingsController() : this(new Client(), new PhoneNumbers()) {}
@@ -32,31 +30,26 @@ namespace ConferenceBroadcast.Web.Controllers
         }
 
         // GET: Recordings
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            var recordings = _client.Recordings()
-                .Select(r => new
-                {
-                    url = ResolveUrl(r.Uri.ToString()),
-                    date = r.DateCreated.ToString("ddd, dd MMM yyyy HH:mm:ss")
-                });
+            var recordings = await _client.Recordings();
 
-            return Json(recordings, JsonRequestBehavior.AllowGet);
+            var formattedRecordings = recordings.Select(r => new
+            {
+                url = ResolveUrl(r.Uri.ToString()),
+                date = r.DateCreated?.ToString("ddd, dd MMM yyyy HH:mm:ss")
+            });
+
+            return Json(formattedRecordings, JsonRequestBehavior.AllowGet);
         }
 
         // POST: Recordings/Create
         [HttpPost]
-        public ActionResult Create(string phoneNumber)
+        public async Task<ActionResult> Create(string phoneNumber)
         {
-            var url = string.Format("{0}{1}", _customRequest.Url, Url.Action("Record"));
-            _client.Call(new CallOptions
-            {
-                From = _phoneNumbers.Twilio,
-                To = phoneNumber,
-                // If there is no ngrok dependency we can use:
-                // Url.Action("Action", "Controller", null, Request.Url.Scheme);
-                Url = string.Format("{0}{1}", _customRequest.Url, Url.Action("Record"))
-            });
+            var url = $"{_customRequest.Url}{Url.Action("Record")}";
+
+            await _client.Call(phoneNumber, _phoneNumbers.Twilio, url);
 
             return new EmptyResult();
         }
@@ -65,34 +58,29 @@ namespace ConferenceBroadcast.Web.Controllers
         [HttpPost]
         public ActionResult Record()
         {
-            var response = new TwilioResponse();
-            response.Say(
-                "Please record your message after the beep. Press star to end your recording");
-            response.Record(new
-            {
-                finishOnKey = "*",
-                action = Url.Action("Hangup")
-            });
+            var response = new VoiceResponse();
+            response
+                .Say("Please record your message after the beep. Press star to end your recording.")
+                .Record(finishOnKey: "*", action: Url.Action("Hangup"));
 
-            return TwiML(response);
+            return Content(response.ToString(), "text/xml");
         }
 
         // POST: Recording/Hangup
         [HttpPost]
         public ActionResult Hangup()
         {
-            var response = new TwilioResponse();
-            response.Say(
-                "Your recording has been saved. Good bye");
-            response.Hangup();
+            var response = new VoiceResponse();
+            response
+                .Say("Your recording has been saved. Good bye!")
+                .Hangup();
 
-            return TwiML(response);
+            return Content(response.ToString(), "text/xml");
         }
 
         private static string ResolveUrl(string uri)
         {
-            return string.Format(
-                "https://api.twilio.com{0}", uri.Replace(".json", ".mp3"));
+            return $"https://api.twilio.com{uri.Replace(".json", ".mp3")}";
         }
     }
 }

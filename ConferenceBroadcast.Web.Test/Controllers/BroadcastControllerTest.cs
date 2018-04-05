@@ -5,6 +5,8 @@ using Moq;
 using NUnit.Framework;
 using TestStack.FluentMVCTesting;
 using Twilio;
+using Twilio.Clients;
+using Twilio.Http;
 
 // ReSharper disable PossibleNullReferenceException
 
@@ -21,20 +23,29 @@ namespace ConferenceBroadcast.Web.Test.Controllers
         }
 
         [Test]
-        public void GivenASendAction_When2PhoneNumbersAreProvided_ThenCallIsCalledTwice()
+        public async void GivenASendAction_When2PhoneNumbersAreProvided_ThenCallIsCalledTwice()
         {
-            var mockClient = new Mock<IClient>();
-            mockClient.Setup(c => c.Call(It.IsAny<CallOptions>()));
+            const string baseUrl = "http://example.com";
+            string broadcastPlayUrl = $"{baseUrl}/Broadcast/Play?recordingUrl=recording-url";
+            const string twilioNumber = "twilio-number";
+
+            var clientMock = new Mock<IClient>();
+
             var mockPhoneNumbers = new Mock<IPhoneNumbers>();
             mockPhoneNumbers.Setup(p => p.Twilio).Returns("twilio-number");
             var mockCustomRequest = new Mock<ICustomRequest>();
-            mockCustomRequest.Setup(r => r.Url).Returns("http://example.com");
+            mockCustomRequest.Setup(r => r.Url).Returns(baseUrl);
 
             var controller = new BroadcastController(
-                mockClient.Object, mockPhoneNumbers.Object, mockCustomRequest.Object) {Url = Url};
-            controller.Send("phone-one, phone-two", "recording-url");
+                clientMock.Object,
+                mockPhoneNumbers.Object,
+                mockCustomRequest.Object
+                ) {Url = Url};
 
-            mockClient.Verify(c => c.Call(It.IsAny<CallOptions>()), Times.Exactly(2));
+            await controller.Send("phone-one, phone-two", "recording-url");
+
+            clientMock.Verify(c => c.Call("phone-one", twilioNumber, broadcastPlayUrl));
+            clientMock.Verify(c => c.Call("phone-two", twilioNumber, broadcastPlayUrl));
         }
 
         [Test]

@@ -1,22 +1,26 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Web.Mvc;
-using System.Web.Routing;
+﻿using System;
+using Client = ConferenceBroadcast.Web.Domain.Twilio.Client;
 using ConferenceBroadcast.Web.Domain.Twilio;
 using ConferenceBroadcast.Web.Domain.Twilio.Configuration;
-using Twilio;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web.Mvc;
+using System.Web.Routing;
+using Twilio.Rest.Api.V2010.Account;
 using Twilio.TwiML;
-using Twilio.TwiML.Mvc;
+using Twilio.Types;
 using WebGrease.Css.Extensions;
-using Client = ConferenceBroadcast.Web.Domain.Twilio.Client;
+
 
 namespace ConferenceBroadcast.Web.Controllers
 {
-    public class BroadcastController : TwilioController
+    public class BroadcastController : Controller
     {
-        private readonly IClient _client;
         private readonly IPhoneNumbers _phoneNumbers;
+        private readonly IClient _client;
         private ICustomRequest _customRequest;
+
         public BroadcastController() : this(new Client(), new PhoneNumbers()) {}
 
         public BroadcastController(IClient client, IPhoneNumbers phoneNumbers, ICustomRequest customRequest = null)
@@ -39,16 +43,14 @@ namespace ConferenceBroadcast.Web.Controllers
         }
 
         // GET: Broadcast/Send
-        public ActionResult Send(string numbers, string recordingUrl)
+        public async Task<ActionResult> Send(string numbers, string recordingUrl)
         {
-            var url = string.Format("{0}{1}", _customRequest.Url, Url.Action("Play", new {recordingUrl}));
-            VolunteersNumbers(numbers).ForEach(number =>
-                _client.Call(new CallOptions
-                {
-                    From = _phoneNumbers.Twilio,
-                    To = number,
-                    Url = string.Format("{0}{1}", _customRequest.Url, Url.Action("Play", new {recordingUrl}))
-                }));
+            var url = $"{_customRequest.Url}{Url.Action("Play", new {recordingUrl})}";
+
+            var calls = VolunteersNumbers(numbers).Select(
+                number => _client.Call(number, _phoneNumbers.Twilio, url));
+
+            await Task.WhenAll(calls);
 
             return View();
         }
@@ -57,10 +59,10 @@ namespace ConferenceBroadcast.Web.Controllers
         [HttpPost]
         public ActionResult Play(string recordingUrl)
         {
-            var response = new TwilioResponse();
+            var response = new VoiceResponse();
             response.Play(recordingUrl);
 
-            return TwiML(response);
+            return Content(response.ToString(), "text/xml");
         }
 
         private static IEnumerable<string> VolunteersNumbers(string numbers)

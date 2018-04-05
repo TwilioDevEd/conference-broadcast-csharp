@@ -1,11 +1,10 @@
 ﻿using System.Web.Mvc;
 using ConferenceBroadcast.Web.Domain.Twilio.Configuration;
 using Twilio.TwiML;
-using Twilio.TwiML.Mvc;
 
 namespace ConferenceBroadcast.Web.Controllers
 {
-    public class ConferenceController : TwilioController
+    public class ConferenceController : Controller
     {
         private readonly IPhoneNumbers _phoneNumbers;
 
@@ -27,15 +26,14 @@ namespace ConferenceBroadcast.Web.Controllers
         [HttpPost]
         public ActionResult Join()
         {
-            var response = new TwilioResponse();
+            var response = new VoiceResponse();
             response.Say("You are about to join the Rapid Response conference");
-            response.BeginGather(new {action = @Url.Action("Connect")})
-                .Say("Press 1 to join as a listener")
-                .Say("Press 2 to join as a speaker")
-                .Say("Press 3 to join as the moderator")
-                .EndGather();
+            response.Gather(new Gather(action: @Url.Action("Connect"))
+                                    .Say("Press 1 to join as a listener")
+                                    .Say("Press 2 to join as a speaker")
+                                    .Say("Press 3 to join as the moderator"));
 
-            return TwiML(response);
+            return Content(response.ToString(), "text/xml");
         }
 
         // POST: Conference/Connect
@@ -45,18 +43,19 @@ namespace ConferenceBroadcast.Web.Controllers
             var isMuted = digits.Equals("1"); // Listener
             var canControlConferenceOnEnter = digits.Equals("3"); // Moderator
 
-            var response = new TwilioResponse();
+            var response = new VoiceResponse();
             response.Say("You have joined the conference");
-            response.Dial()
-                .DialConference("RapidResponseRoom", new
-                {
-                    waitUrl = "http://twimlets.com/holdmusic?Bucket=com.twilio.music.ambient",
-                    muted = isMuted,
-                    startConferenceOnEnter = canControlConferenceOnEnter,
-                    endConferenceOnExit = canControlConferenceOnEnter
-                });
 
-            return TwiML(response);
+            var dial = new Dial();
+            dial.Conference("RapidResponseRoom",
+                waitUrl: "http://twimlets.com/holdmusic?Bucket=com.twilio.music.ambient",
+                muted: isMuted,
+                startConferenceOnEnter: canControlConferenceOnEnter,
+                endConferenceOnExit: canControlConferenceOnEnter);
+
+            response.Dial(dial);
+
+            return Content(response.ToString(), "text/xml");
         }
     }
 }

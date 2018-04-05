@@ -14,14 +14,16 @@ namespace ConferenceBroadcast.Web.Domain.Twilio.Configuration
         {
             get
             {
-                return WebConfigurationManager.AppSettings["TwilioAccountSid"];
+                return WebConfigurationManager.AppSettings["TwilioAccountSid"] ??
+                    "ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
             }
         }
         public string AuthToken
         {
             get
             {
-                return WebConfigurationManager.AppSettings["TwilioAuthToken"];
+                return WebConfigurationManager.AppSettings["TwilioAuthToken"] ??
+                    "aXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
             }
         }
     }
