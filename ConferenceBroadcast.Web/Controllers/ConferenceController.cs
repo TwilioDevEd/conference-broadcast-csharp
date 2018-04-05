@@ -1,7 +1,9 @@
-﻿using ConferenceBroadcast.Web.Domain.Twilio.Configuration;
+﻿using System;
+using ConferenceBroadcast.Web.Domain.Twilio.Configuration;
 using System.Web.Mvc;
 using Twilio.AspNet.Mvc;
 using Twilio.TwiML;
+using Twilio.TwiML.Voice;
 
 namespace ConferenceBroadcast.Web.Controllers
 {
@@ -29,7 +31,7 @@ namespace ConferenceBroadcast.Web.Controllers
         {
             var response = new VoiceResponse();
             response.Say("You are about to join the Rapid Response conference");
-            response.Gather(new Gather(action: @Url.Action("Connect"))
+            response.Append(new Gather(action: Url.ActionUri("Connect", "Conference"))
                                     .Say("Press 1 to join as a listener")
                                     .Say("Press 2 to join as a speaker")
                                     .Say("Press 3 to join as the moderator"));
@@ -49,12 +51,12 @@ namespace ConferenceBroadcast.Web.Controllers
 
             var dial = new Dial();
             dial.Conference("RapidResponseRoom",
-                waitUrl: "http://twimlets.com/holdmusic?Bucket=com.twilio.music.ambient",
+                waitUrl: new Uri("http://twimlets.com/holdmusic?Bucket=com.twilio.music.ambient"),
                 muted: isMuted,
                 startConferenceOnEnter: canControlConferenceOnEnter,
                 endConferenceOnExit: canControlConferenceOnEnter);
 
-            response.Dial(dial);
+            response.Append(dial);
 
             return TwiML(response);
         }

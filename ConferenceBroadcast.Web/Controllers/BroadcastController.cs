@@ -1,3 +1,4 @@
+using System;
 using Client = ConferenceBroadcast.Web.Domain.Twilio.Client;
 using ConferenceBroadcast.Web.Domain.Twilio;
 using ConferenceBroadcast.Web.Domain.Twilio.Configuration;
@@ -56,7 +57,7 @@ namespace ConferenceBroadcast.Web.Controllers
         public ActionResult Play(string recordingUrl)
         {
             var response = new VoiceResponse();
-            response.Play(recordingUrl);
+            response.Play(new Uri(recordingUrl));
 
             return TwiML(response);
         }

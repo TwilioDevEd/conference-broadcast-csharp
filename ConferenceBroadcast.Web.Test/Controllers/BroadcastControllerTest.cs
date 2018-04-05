@@ -52,7 +52,7 @@ namespace ConferenceBroadcast.Web.Test.Controllers
         public void GivenAPlayAction_ThenTheResponseContainsPlay()
         {
             var controller = new BroadcastController();
-            const string recordUrl = "record-url";
+            const string recordUrl = "http://record-url/some-url";
             var result = controller.Play(recordUrl);
 
             result.ExecuteResult(MockControllerContext.Object);

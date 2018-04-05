@@ -48,7 +48,7 @@ namespace ConferenceBroadcast.Web.Controllers
         [HttpPost]
         public async Task<ActionResult> Create(string phoneNumber)
         {
-            var url = $"{_customRequest.Url}{Url.Action("Record")}";
+            var url = $"{_customRequest.Url}{Url.ActionUri("Record", "Recordings")}";
 
             await _client.Call(phoneNumber, _phoneNumbers.Twilio, url);
 
@@ -62,7 +62,7 @@ namespace ConferenceBroadcast.Web.Controllers
             var response = new VoiceResponse();
             response
                 .Say("Please record your message after the beep. Press star to end your recording.")
-                .Record(finishOnKey: "*", action: Url.Action("Hangup"));
+                .Record(finishOnKey: "*", action: Url.ActionUri("Hangup", "Recordings"));
 
             return TwiML(response);
         }
