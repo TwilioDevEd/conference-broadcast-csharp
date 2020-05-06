@@ -4,6 +4,7 @@
 
 # Rapid Response Kit: Building Conferencing and Broadcasting with Twilio. Level: Intermediate. Powered by Twilio - ASP.NET MVC
 
+![](https://github.com/TwilioDevEd/conference-broadcast-csharp/workflows/NetFx/badge.svg)
 [![Build status](https://ci.appveyor.com/api/projects/status/j65aeh8inbqlav0s?svg=true)](https://ci.appveyor.com/project/TwilioDevEd/conference-broadcast-csharp)
 
 > We are currently in the process of updating this sample template. If you are encountering any issues with the sample, please open an issue at [github.com/twilio-labs/code-exchange/issues](https://github.com/twilio-labs/code-exchange/issues) and we'll try to help you.
@@ -23,18 +24,9 @@ An example application implementing an disaster response kit that allows an orga
    cd conference-broadcast-csharp
    ```
 
-3. Create a new file ConferenceBroadcast.Web/Local.config and update the content with:
+3. Copy the file `ConferenceBroadcast.Web/Local.config.example` to `ConferenceBroadcast.Web/Local.config`.
 
-   ```
-   <appSettings>
-     <add key="TwilioAccountSid" value="Your Twilio Account SID" />
-     <add key="TwilioAuthToken" value="Your Twilio Auth Token" />
-     <add key="TwilioPhoneNumber" value="Your Twilio Phone Number" />
-     <add key="RapidResponsePhoneNumber" value="Your Rapid Response Phone Number" />
-   </appSettings>
-   ```
-
-4. Update those values in the config file to match your Twilio account. You can get your Account SID and auth token from your [dashboard](https://www.twilio.com/console). For the two phone numbers, you can use different phone numbers, or the same phone number. (The first number is for broadcasts, the second is for the conference line.) You can buy numbers [right
+4. Update those values in the `Local.config` file to match your Twilio account. You can get your Account SID and auth token from your [dashboard](https://www.twilio.com/console). For the two phone numbers, you can use different phone numbers, or the same phone number. (The first number is for broadcasts, the second is for the conference line.) You can buy numbers [right
 here](https://www.twilio.com/user/account/phone-numbers/search).
 
 5. Build the solution in Visual Studio.
@@ -67,5 +59,6 @@ the `RapidResponsePhoneNumber` setting.
 ## Meta
 
 * No warranty expressed or implied. Software is as is. Diggity.
+* The CodeExchange repository can be found [here](https://github.com/twilio-labs/code-exchange/).
 * [MIT License](http://www.opensource.org/licenses/mit-license.html)
 * Lovingly crafted by Twilio Developer Education.
