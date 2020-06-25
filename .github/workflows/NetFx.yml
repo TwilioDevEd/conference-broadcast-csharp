@@ -1,0 +1,34 @@
+name: NetFx
+
+on:
+  push:
+    branches: [ master, next ]
+  pull_request:
+    branches: [ master, next ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout Code
+
+    - name: Setup MSBuild Path
+      uses: microsoft/setup-msbuild@v1
+
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1.0.2
+
+    - name: Restore NuGet Packages
+      run: nuget restore ConferenceBroadcast.sln
+
+    - name: Set up local configuration
+      run: copy "ConferenceBroadcast.Web\Local.config.example" "ConferenceBroadcast.Web\Local.config"
+
+    - name: Build Web App
+      run: msbuild ConferenceBroadcast.sln /verbosity:minimal
+
+    - name: Run Tests with NUnit Console
+      run: .\packages\NUnit.ConsoleRunner.3.11.1\tools\nunit3-console ConferenceBroadcast.Web.Test\bin\Debug\ConferenceBroadcast.Web.Test.dll
+

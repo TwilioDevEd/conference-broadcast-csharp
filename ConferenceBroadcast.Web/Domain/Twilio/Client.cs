@@ -23,6 +23,7 @@ namespace ConferenceBroadcast.Web.Domain.Twilio
         {
             ICredentials credentials = new Credentials();
             _client = new TwilioRestClient(credentials.AccountSID, credentials.AuthToken);
+            System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
         }
 
         public async Task<CallResource> Call(string to, string from, string url)
